@@ -107,6 +107,9 @@ class ApiManager
     public function filter(Request $request)
     {
         $entity = new \ReflectionClass($request->attributes->get('_entity'));
+        if(!$this->accessManager->canAccessResource($entity)) {
+            throw new AccessDeniedHttpException();
+        }
         $builder = $this->doctrine->getRepository($entity->getName())->createQueryBuilder('e');
 
         $sort = $request->get('sort');
