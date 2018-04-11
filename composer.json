@@ -1,5 +1,5 @@
 {
-    "name": "kamilabs/api-core-bundle",
+    "name": "kami/api-core-bundle",
     "description": "This bundle provides you with easy and flexible REST CRUDs creation",
     "type": "symfony-bundle",
     "license": "MIT",
