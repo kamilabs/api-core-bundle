@@ -145,7 +145,7 @@ class ApiManagerTest extends WebTestCase
             ->willReturn($queryBuilderMock);
         $repositoryMock = $this->mock(EntityRepository::class, 'createQueryBuilder', $queryBuilderMock);
         $registryMock = $this->mock(Registry::class, 'getRepository', $repositoryMock);
-        $accessManagerMock = $this->mock(AccessManager::class);
+        $accessManagerMock = $this->mock(AccessManager::class, 'canAccessResource', true);
         $factoryMock = $this->mock(Factory::class);
 
         $this->expectException(BadRequestHttpException::class);
