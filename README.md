@@ -1,4 +1,4 @@
-# KamiApiCoreBundle
+# KamiApiCoreBundle [![Build Status](https://travis-ci.org/kamilabs/api-core-bundle.svg?branch=master)](https://travis-ci.org/kamilabs/api-core-bundle)
 
 This bundle provides easiest way to create CRUD actions in 
 your REST applications. Simple and flexible configuration for 
