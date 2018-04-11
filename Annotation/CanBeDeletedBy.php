@@ -7,4 +7,5 @@ namespace Kami\ApiCoreBundle\Annotation;
  */
 class CanBeDeletedBy
 {
+    public $roles;
 }
