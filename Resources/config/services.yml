@@ -26,6 +26,7 @@ services:
         arguments:
           - "@security.token_storage"
           - "@annotation_reader"
+        public: true
 
     kami_api_core.form_factory:
         class: "%kami_api_core.form_factory.class%"
