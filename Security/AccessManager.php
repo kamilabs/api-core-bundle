@@ -24,7 +24,6 @@ class AccessManager
 
     /**
      * @var Reader
-
      */
     private $annotationReader;
 

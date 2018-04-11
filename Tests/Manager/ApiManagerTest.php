@@ -442,13 +442,13 @@ class ApiManagerTest extends WebTestCase
             ->disableOriginalClone()
             ->getMock();
 
-        if($expectedMethod){
-            if($methodParameter){
+        if ($expectedMethod) {
+            if ($methodParameter) {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->with($methodParameter)
                     ->willReturn($willReturn);
-            } else{
+            } else {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->willReturn($willReturn);

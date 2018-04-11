@@ -34,7 +34,7 @@ class FactoryTest extends WebTestCase
 
         $factory = new Factory($formFactory, $reader, $accessManager);
 
-        $this->assertEquals('OK',  $factory->getCreateForm($entity));
+        $this->assertEquals('OK', $factory->getCreateForm($entity));
     }
 
     public function testFactoryGetEditForm()
@@ -48,7 +48,7 @@ class FactoryTest extends WebTestCase
 
         $factory = new Factory($formFactory, $reader, $accessManager);
 
-        $this->assertEquals('OK',  $factory->getEditForm($entity));
+        $this->assertEquals('OK', $factory->getEditForm($entity));
     }
 
     private function mock($class, $expectedMethod = null, $willReturn = null, $methodParameter = null)
@@ -57,13 +57,13 @@ class FactoryTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        if($expectedMethod){
-            if($methodParameter){
+        if ($expectedMethod) {
+            if ($methodParameter) {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->with($methodParameter)
                     ->willReturn($willReturn);
-            } else{
+            } else {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->willReturn($willReturn);

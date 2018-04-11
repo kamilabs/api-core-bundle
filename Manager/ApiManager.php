@@ -113,12 +113,12 @@ class ApiManager
         $builder = $this->doctrine->getRepository($entity->getName())->createQueryBuilder('e');
 
         $sort = $request->get('sort');
-        if($sort) {
-            $sort = lcfirst(implode('', array_map(function ($key) {
+        if ($sort) {
+            $sort = lcfirst(implode('', array_map(function($key) {
                 return ucfirst($key);
             }, explode('_', $sort))));
 
-            if(!$entity->hasProperty($sort)) {
+            if (!$entity->hasProperty($sort)) {
                 throw new BadRequestHttpException(sprintf('There is no such field %s', $sort));
             }
             $builder->orderBy(
@@ -127,9 +127,9 @@ class ApiManager
             );
         }
 
-        foreach($entity->getProperties() as $property) {
+        foreach ($entity->getProperties() as $property) {
             $name = $property->getName();
-            if($value = $request->get($name)) {
+            if ($value = $request->get($name)) {
                 $builder->andWhere($builder->expr()->orX(
                     $builder->expr()->like('e.'.$name, ':value')
                 ));

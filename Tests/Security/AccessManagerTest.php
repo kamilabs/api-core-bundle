@@ -197,7 +197,7 @@ class AccessManagerTest extends WebTestCase
         $reflection = $this->mock(\ReflectionProperty::class);
 
         $access = new CanBeCreatedBy();
-        $access->roles = ['ROLE_USER','ROLE_ADMIN'];
+        $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
         $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [$access], $reflection);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
@@ -405,7 +405,7 @@ class AccessManagerTest extends WebTestCase
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new CanBeDeletedBy();
-        $access->roles = ['ROLE_USER','ROLE_ADMIN'];
+        $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
         $annReader = $this->mock(Reader::class, 'getClassAnnotations', [$access], $reflection);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
@@ -463,13 +463,13 @@ class AccessManagerTest extends WebTestCase
     {
         $mock = $this->createMock($class);
 
-        if($expectedMethod){
-            if($methodParameter){
+        if ($expectedMethod) {
+            if ($methodParameter) {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->with($methodParameter)
                     ->willReturn($willReturn);
-            } else{
+            } else {
                 $mock->expects($this->any())
                     ->method($expectedMethod)
                     ->willReturn($willReturn);
