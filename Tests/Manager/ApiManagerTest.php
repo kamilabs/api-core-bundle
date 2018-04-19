@@ -125,10 +125,10 @@ class ApiManagerTest extends WebTestCase
         $status = json_decode($response->getStatusCode(), true);
         $this->assertEquals(200, $status);
     }
-    public function testFilterMethodWithSortNotCurrentSortInUrl()
+    public function testFilterWithWrongSortParameter()
     {
         $requestMock = $this->mock(Request::class);
-        $requestMock->expects($this->at(0))->method('get')->with('sort')->willReturn('ddddd');
+        $requestMock->expects($this->any())->method('get')->willReturn('ddddd');
         $entityName  = 'Kami\ApiCoreBundle\Tests\Entity\MyModel';
         $requestMock->attributes = $this->mock(ParameterBag::class, 'get', $entityName);
 

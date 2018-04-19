@@ -88,12 +88,12 @@ class ApiManager
      */
     public function getIndex(Request $request)
     {
-        $entity = new \ReflectionClass($request->attributes->get('_entity'));
+        $entity = $this->getEntityReflectionFromRequest($request);
         $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_INDEX_REQUEST, new CrudEvent($entity));
+
         if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
         }
-
 
         $perPage = $request->query->getInt('per_page', $this->perPage);
         $currentPage = $request->query->getInt('page', 1);
@@ -106,7 +106,8 @@ class ApiManager
 
     public function filter(Request $request)
     {
-        $entity = new \ReflectionClass($request->attributes->get('_entity'));
+        $entity = $this->getEntityReflectionFromRequest($request);
+
         if(!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
         }
@@ -157,7 +158,7 @@ class ApiManager
      */
     public function getSingleResource(Request $request)
     {
-        $entity = new \ReflectionClass($request->attributes->get('_entity'));
+        $entity = $this->getEntityReflectionFromRequest($request);
         $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_REQUEST, new CrudEvent($entity));
         if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
@@ -179,24 +180,25 @@ class ApiManager
      */
     public function createResource(Request $request)
     {
-        $entityName = $request->attributes->get('_entity');
-        $reflection = new \ReflectionClass($entityName);
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATE, new CrudEvent($reflection));
-        if (!$this->accessManager->canCreateResource($reflection)) {
+        $entity = $this->getEntityReflectionFromRequest($request);
+
+        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATE, new CrudEvent($entity));
+        if (!$this->accessManager->canCreateResource($entity)) {
             throw new AccessDeniedHttpException();
         }
 
-        $entity = new $entityName;
+        $className = $entity->getName();
+        $persistentObject = new $className;
 
-        $form = $this->formFactory->getCreateForm($entity);
+        $form = $this->formFactory->getCreateForm($persistentObject);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->doctrine->getManager()->persist($entity);
+            $this->doctrine->getManager()->persist($persistentObject);
             $this->doctrine->getManager()->flush();
 
-            $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATED, new CrudEvent($entity));
-            return $this->createResponse($entity, $request);
+            $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATED, new CrudEvent($persistentObject));
+            return $this->createResponse($persistentObject, $request);
         }
 
         return $this->createResponse($form->getErrors(), $request, 400);
@@ -208,26 +210,27 @@ class ApiManager
      */
     public function editResource(Request $request)
     {
-        $entityName = $request->attributes->get('_entity');
-        $reflection = new \ReflectionClass($entityName);
-        if (!$this->accessManager->canEditResource($reflection)) {
+        $entity = $this->getEntityReflectionFromRequest($request);
+        if (!$this->accessManager->canEditResource($entity)) {
             throw new AccessDeniedHttpException();
         }
 
-        $entity = $this->doctrine->getManager()->getRepository($entityName)->find($request->get('id'));
+        $persistentObject = $this->doctrine->getManager()
+            ->getRepository($entity->getName())
+            ->find($request->get('id'));
 
-        if (!$entity) {
+        if (!$persistentObject) {
             throw new NotFoundHttpException();
         }
 
-        $form = $this->formFactory->getEditForm($entity);
+        $form = $this->formFactory->getEditForm($persistentObject);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->doctrine->getManager()->persist($entity);
+            $this->doctrine->getManager()->persist($persistentObject);
             $this->doctrine->getManager()->flush();
 
-            return $this->createResponse($entity, $request);
+            return $this->createResponse($persistentObject, $request);
         }
 
         return $this->createResponse($form->getErrors(), $request, 400);
@@ -295,6 +298,15 @@ class ApiManager
             $status,
             ['Content-type' => $this->getContentTypeByFormat($format)]
         );
+    }
+
+    private function getEntityReflectionFromRequest(Request $request)
+    {
+        try {
+            return new \ReflectionClass($request->attributes->get('_entity'));
+        } catch (\ReflectionException $e) {
+            throw new BadRequestHttpException();
+        }
     }
 
     /**
