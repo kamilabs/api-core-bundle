@@ -132,9 +132,9 @@ class ApiManager
             $name = $property->getName();
             if ($value = $request->get($name)) {
                 $builder->andWhere($builder->expr()->orX(
-                    $builder->expr()->like('e.'.$name, ':value')
+                    $builder->expr()->like('e.'.$name, ':value'.$name)
                 ));
-                $builder->setParameter('value', '%'.$value.'%');
+                $builder->setParameter('value'.$name, '%'.$value.'%');
             }
         }
 
