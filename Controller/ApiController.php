@@ -27,7 +27,7 @@ class ApiController extends Controller
         return $this->get('kami_api_core.api_manager')->createResource($request);
     }
 
-    public function updateAction(Request $request)
+    public function editAction(Request $request)
     {
         return $this->get('kami_api_core.api_manager')->editResource($request);
     }

@@ -111,31 +111,15 @@ class ApiManager
         if(!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
         }
-        $builder = $this->doctrine->getRepository($entity->getName())->createQueryBuilder('e');
+        $builder = $this
+            ->doctrine
+            ->getRepository($entity->getName())
+            ->createQueryBuilder('e');
 
-        $sort = $request->get('sort');
-        if ($sort) {
-            $sort = lcfirst(implode('', array_map(function($key) {
-                return ucfirst($key);
-            }, explode('_', $sort))));
-
-            if (!$entity->hasProperty($sort)) {
-                throw new BadRequestHttpException(sprintf('There is no such field %s', $sort));
-            }
-            $builder->orderBy(
-                'e.'.$sort,
-                in_array($request->get('order'), ['asc', 'desc']) ? $request->get('order') : 'desc'
-            );
-        }
+        $this->addSort($request, $entity, $builder);
 
         foreach ($entity->getProperties() as $property) {
-            $name = $property->getName();
-            if ($value = $request->get($name)) {
-                $builder->andWhere($builder->expr()->orX(
-                    $builder->expr()->like('e.'.$name, ':value'.$name)
-                ));
-                $builder->setParameter('value'.$name, '%'.$value.'%');
-            }
+            $this->addLikeConditions($request, $property->getName(), $builder);
         }
 
         $countBuilder = clone $builder;
@@ -238,18 +222,23 @@ class ApiManager
 
     /**
      * @param Request $request
+     *
+     * @throws AccessDeniedHttpException
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     *
      * @return Response
      */
     public function deleteResource(Request $request)
     {
-        $entityName = $request->attributes->get('_entity');
-        $reflection = new \ReflectionClass($entityName);
-        if (!$this->accessManager->canDeleteResource($reflection)) {
+        $entity = $this->getEntityReflectionFromRequest($request);
+
+        if (!$this->accessManager->canDeleteResource($entity)) {
             throw new AccessDeniedHttpException();
         }
 
         $entity = $this->doctrine->getManager()
-            ->getRepository($entityName)
+            ->getRepository($entity->getName())
             ->find($request->get('id'));
 
         if (!$entity) {
@@ -280,6 +269,44 @@ class ApiManager
         ;
 
         return $queryBuilder->getQuery();
+    }
+
+    /**
+     * @param Request $request
+     * @param $entity
+     * @param $builder
+     */
+    private function addSort(Request $request, \ReflectionClass $entity, QueryBuilder $builder)
+    {
+        $sort = $request->get('sort');
+        if ($sort) {
+            $sort = lcfirst(implode('', array_map(function ($key) {
+                return ucfirst($key);
+            }, explode('_', $sort))));
+
+            if (!$entity->hasProperty($sort)) {
+                throw new BadRequestHttpException(sprintf('There is no such field %s', $sort));
+            }
+            $builder->orderBy(
+                'e.' . $sort,
+                in_array($request->get('order'), ['asc', 'desc']) ? $request->get('order') : 'desc'
+            );
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param $name
+     * @param $builder
+     */
+    private function addLikeConditions(Request $request, $name, QueryBuilder $builder)
+    {
+        if ($value = $request->get($name)) {
+            $builder->andWhere($builder->expr()->orX(
+                $builder->expr()->like('e.'.$name, ':value'.$name)
+            ));
+            $builder->setParameter('value'.$name, '%'.$value.'%');
+        }
     }
 
     /**

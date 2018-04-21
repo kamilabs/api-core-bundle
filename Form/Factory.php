@@ -33,7 +33,7 @@ class Factory
      * Factory constructor.
      *
      * @param FormFactory $formFactory
-     * @param CachedReader $annotationReader
+     * @param Reader $annotationReader
      * @param AccessManager $accessManager
      */
     public function __construct(FormFactory $formFactory, Reader $annotationReader, AccessManager $accessManager)
