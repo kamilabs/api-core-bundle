@@ -10,7 +10,6 @@ use Kami\ApiCoreBundle\ApiCoreEvents;
 use Kami\ApiCoreBundle\Event\CrudEvent;
 use Kami\ApiCoreBundle\Form\Factory;
 use Kami\ApiCoreBundle\Security\AccessManager;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -89,7 +88,10 @@ class ApiManager
     public function getIndex(Request $request)
     {
         $entity = $this->getEntityReflectionFromRequest($request);
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_INDEX_REQUEST, new CrudEvent($entity));
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_INDEX_REQUEST,
+            new CrudEvent($entity, $request)
+        );
 
         if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
@@ -99,14 +101,25 @@ class ApiManager
         $currentPage = $request->query->getInt('page', 1);
         $data = $this->buildIndexQuery($entity, $perPage, $currentPage)->getResult();
 
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_INDEX_RESPONSE, new CrudEvent($data));
+        $response = $this->createResponse($data, $request);
 
-        return $this->createResponse($data, $request);
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_INDEX_RESPONSE,
+            new CrudEvent($entity, $request, $response, $data)
+        );
+
+        return $response;
     }
 
     public function filter(Request $request)
     {
         $entity = $this->getEntityReflectionFromRequest($request);
+
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_FILTER_REQUEST,
+            new CrudEvent($entity, $request)
+        );
 
         if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
@@ -124,15 +137,23 @@ class ApiManager
 
         $countBuilder = clone $builder;
 
-        return $this->createResponse([
+        $data = [
             'total' => $countBuilder->select('count(e.id)')->getQuery()->getSingleScalarResult(),
             'rows' => $builder
                 ->setMaxResults($request->get('limit') ? $request->get('limit') : 20)
                 ->setFirstResult($request->get('offset') ? $request->get('offset') : 0)
                 ->getQuery()
                 ->getResult()
-        ], $request);
+        ];
 
+        $response = $this->createResponse($data, $request);
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_INDEX_RESPONSE,
+            new CrudEvent($entity, $request, $response, $data)
+        );
+
+        return $response;
     }
 
 
@@ -143,19 +164,28 @@ class ApiManager
     public function getSingleResource(Request $request)
     {
         $entity = $this->getEntityReflectionFromRequest($request);
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_REQUEST, new CrudEvent($entity));
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_REQUEST,
+            new CrudEvent($entity, $request)
+        );
         if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
         }
 
-        $entity = $this->doctrine->getManager()->getRepository($entity->getName())->find($request->get('id'));
+        $data = $this->doctrine->getManager()->getRepository($entity->getName())->find($request->get('id'));
 
-        if (!$entity) {
+        if (!$data) {
             throw new NotFoundHttpException();
         }
 
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_RESPONSE, new CrudEvent($entity));
-        return $this->createResponse($entity, $request);
+        $response = $this->createResponse($entity, $request);
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_RESPONSE,
+            new CrudEvent($entity, $request, $response, $data)
+        );
+
+        return $response;
     }
 
     /**
@@ -166,7 +196,11 @@ class ApiManager
     {
         $entity = $this->getEntityReflectionFromRequest($request);
 
-        $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATE, new CrudEvent($entity));
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_CREATE,
+            new CrudEvent($entity, $request)
+        );
+
         if (!$this->accessManager->canCreateResource($entity)) {
             throw new AccessDeniedHttpException();
         }
@@ -181,11 +215,24 @@ class ApiManager
             $this->doctrine->getManager()->persist($persistentObject);
             $this->doctrine->getManager()->flush();
 
-            $this->eventDispatcher->dispatch(ApiCoreEvents::RESOURCE_CREATED, new CrudEvent($persistentObject));
-            return $this->createResponse($persistentObject, $request);
+            $response = $this->createResponse($persistentObject, $request);
+
+            $this->eventDispatcher->dispatch(
+                ApiCoreEvents::RESOURCE_CREATED,
+                new CrudEvent($entity, $request, $response, $persistentObject)
+            );
+
+            return $response;
         }
 
-        return $this->createResponse($form->getErrors(), $request, 400);
+        $response = $this->createResponse($form->getErrors(), $request, 400);
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_CREATE_FAILED,
+            new CrudEvent($entity, $request, $response, $persistentObject)
+        );
+
+        return $response;
     }
 
     /**
@@ -207,6 +254,11 @@ class ApiManager
             throw new NotFoundHttpException();
         }
 
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_EDIT,
+            new CrudEvent($entity, $request, null, $persistentObject)
+        );
+
         $form = $this->formFactory->getEditForm($persistentObject);
         $form->handleRequest($request);
 
@@ -214,10 +266,24 @@ class ApiManager
             $this->doctrine->getManager()->persist($persistentObject);
             $this->doctrine->getManager()->flush();
 
-            return $this->createResponse($persistentObject, $request);
+            $response = $this->createResponse($persistentObject, $request);
+
+            $this->eventDispatcher->dispatch(
+                ApiCoreEvents::RESOURCE_EDIT,
+                new CrudEvent($entity, $request, $response, $persistentObject)
+            );
+
+            return $response;
         }
 
-        return $this->createResponse($form->getErrors(), $request, 400);
+        $response = $this->createResponse($form->getErrors(), $request, 400);
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_EDIT_FAILED,
+            new CrudEvent($entity, $request, $response, $persistentObject)
+        );
+
+        return $response;
     }
 
     /**
@@ -237,18 +303,30 @@ class ApiManager
             throw new AccessDeniedHttpException();
         }
 
-        $entity = $this->doctrine->getManager()
+        $persistentObject = $this->doctrine->getManager()
             ->getRepository($entity->getName())
             ->find($request->get('id'));
 
-        if (!$entity) {
+        if (!$persistentObject) {
             throw new NotFoundHttpException();
         }
 
-        $this->doctrine->getManager()->remove($entity);
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_DELETE,
+            new CrudEvent($entity, $request, null, $persistentObject)
+        );
+
+        $this->doctrine->getManager()->remove($persistentObject);
         $this->doctrine->getManager()->flush();
 
-        return $this->createResponse('', $request, 201);
+        $response = $this->createResponse('', $request, 201);
+
+        $this->eventDispatcher->dispatch(
+            ApiCoreEvents::RESOURCE_DELETE,
+            new CrudEvent($entity, $request, null, $persistentObject)
+        );
+
+        return $response;
     }
 
     /**
