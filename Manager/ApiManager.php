@@ -108,7 +108,7 @@ class ApiManager
     {
         $entity = $this->getEntityReflectionFromRequest($request);
 
-        if(!$this->accessManager->canAccessResource($entity)) {
+        if (!$this->accessManager->canAccessResource($entity)) {
             throw new AccessDeniedHttpException();
         }
         $builder = $this
@@ -280,7 +280,7 @@ class ApiManager
     {
         $sort = $request->get('sort');
         if ($sort) {
-            $sort = lcfirst(implode('', array_map(function ($key) {
+            $sort = lcfirst(implode('', array_map(function($key) {
                 return ucfirst($key);
             }, explode('_', $sort))));
 
@@ -288,7 +288,7 @@ class ApiManager
                 throw new BadRequestHttpException(sprintf('There is no such field %s', $sort));
             }
             $builder->orderBy(
-                'e.' . $sort,
+                'e.'.$sort,
                 in_array($request->get('order'), ['asc', 'desc']) ? $request->get('order') : 'desc'
             );
         }
