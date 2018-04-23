@@ -178,7 +178,7 @@ class ApiManager
             throw new NotFoundHttpException();
         }
 
-        $response = $this->createResponse($entity, $request);
+        $response = $this->createResponse($data, $request);
 
         $this->eventDispatcher->dispatch(
             ApiCoreEvents::RESOURCE_RESPONSE,
