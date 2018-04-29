@@ -14,6 +14,10 @@ class BuildSelectQueryStep extends AbstractStep
      */
     private $accessManager;
 
+    public function __construct(AccessManager $accessManager)
+    {
+        $this->accessManager = $accessManager;
+    }
 
     public function execute()
     {
@@ -33,10 +37,6 @@ class BuildSelectQueryStep extends AbstractStep
         return $this->createResponse(['query_builder' => $queryBuilder]);
     }
 
-    public function setAccessManager(AccessManager $accessManager)
-    {
-        $this->accessManager = $accessManager;
-    }
 
     public function requiresBefore()
     {

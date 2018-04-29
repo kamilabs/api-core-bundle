@@ -3,11 +3,12 @@
 namespace Kami\ApiCoreBundle\Routing;
 
 use Kami\ApiCoreBundle\Controller\ApiController;
+use Kami\ApiCoreBundle\Model\UserAwareInterface;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-class ApiLoader extends Loader
+class ApiCoreRoutingLoader extends Loader
 {
     /**
      * @var bool
@@ -55,29 +56,35 @@ class ApiLoader extends Loader
 
         foreach ($this->resources as $resource) {
             $routes->add(
-                sprintf('kami_api_core_%s_index', $resource['name']),
+                sprintf('kami.api_core_%s_index', $resource['name']),
                 $this->createIndexRoute($resource)
             );
             $routes->add(
-                sprintf('kami_api_core_%s_filter', $resource['name']),
+                sprintf('kami.api_core_%s_filter', $resource['name']),
                 $this->createFilterRoute($resource)
             );
             $routes->add(
-                sprintf('kami_api_core_%s_item', $resource['name']),
+                sprintf('kami.api_core_%s_item', $resource['name']),
                 $this->createItemRoute($resource)
             );
             $routes->add(
-                sprintf('kami_api_core_%s_create', $resource['name']),
+                sprintf('kami.api_core_%s_create', $resource['name']),
                 $this->createNewRoute($resource)
             );
             $routes->add(
-                sprintf('kami_api_core_%s_update', $resource['name']),
+                sprintf('kami.api_core_%s_update', $resource['name']),
                 $this->createUpdateRoute($resource)
             );
             $routes->add(
-                sprintf('kami_api_core_%s_delete', $resource['name']),
+                sprintf('kami.api_core_%s_delete', $resource['name']),
                 $this->createDeleteRoute($resource)
             );
+            if ($resource['entity'] instanceof UserAwareInterface) {
+                $routes->add(
+                    sprintf('kami.api_core_%s_my', $resource['name']),
+                    $this->createMyRoute($resource)
+                );
+            }
         }
 
         $this->loaded = true;
@@ -95,9 +102,11 @@ class ApiLoader extends Loader
     {
         $path = sprintf('/api/{_locale}{_S}%s{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::indexAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['index'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -115,9 +124,11 @@ class ApiLoader extends Loader
     {
         $path = sprintf('/api/{_locale}{_S}%s/filter{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::filterAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['filter'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -135,9 +146,11 @@ class ApiLoader extends Loader
     {
         $path = sprintf('/api/{_locale}{_S}%s/{id}{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::itemAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['item'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -156,9 +169,11 @@ class ApiLoader extends Loader
     {
         $path = sprintf('/api/{_locale}{_S}%s/{id}{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::editAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['update'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -176,9 +191,11 @@ class ApiLoader extends Loader
     {
         $path = sprintf('/api/{_locale}{_S}%s{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::newAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['create'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -192,13 +209,39 @@ class ApiLoader extends Loader
 
         return $route;
     }
+
     private function createDeleteRoute(array $resource)
     {
         $path = sprintf('/api/{_locale}{_S}%s/{id}{_dot}{_format}', $resource['name']);
         $defaults = [
-            '_controller' => ApiController::class.'::deleteAction',
+            '_controller' => ApiController::class.'::apiAction',
             '_locale' => $this->defaultLocale,
             '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['delete'],
+            '_request_processor' => $resource['request_processor'],
+            '_format' => 'json',
+        ];
+        $requirements = [
+            '_S' => '/?',
+            '_dot' => '\.?',
+            '_locale' => '|'.implode('|', $this->locales),
+            '_format' => 'json|xml',
+            'id' => '\d+'
+        ];
+        $route = new Route($path, $defaults, $requirements, [], '', [], ['DELETE']);
+
+        return $route;
+    }
+
+    private function createMyRoute(array $resource)
+    {
+        $path = sprintf('/api/{_locale}{_S}my/%s/{id}{_dot}{_format}', $resource['name']);
+        $defaults = [
+            '_controller' => ApiController::class.'::apiAction',
+            '_locale' => $this->defaultLocale,
+            '_entity' => $resource['entity'],
+            '_strategy' => $resource['strategies']['my'],
+            '_request_processor' => $resource['request_processor'],
             '_format' => 'json'
         ];
         $requirements = [

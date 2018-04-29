@@ -3,6 +3,7 @@
 
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Delete;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
@@ -17,6 +18,12 @@ class DeleteStep extends AbstractStep
      */
     protected  $manager;
 
+    public function __construct(Registry $doctrine)
+    {
+        $this->manager = $doctrine->getManager();
+    }
+
+
     public function execute()
     {
         $entity = $this->getFromResponse('entity');
@@ -29,11 +36,6 @@ class DeleteStep extends AbstractStep
         }
 
         $this->createResponse(['response_data' => null], true, 204);
-    }
-
-    public function setDoctrine(EntityManager $manager)
-    {
-        $this->manager = $manager;
     }
 
     public function requiresBefore()

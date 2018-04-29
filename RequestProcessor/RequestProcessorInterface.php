@@ -1,6 +1,6 @@
 <?php
 
-namespace Kami\ApiCoreBundle\RequestProcessing\Strategy;
+namespace Kami\ApiCoreBundle\RequestProcessor;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -8,32 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 interface RequestProcessorInterface
 {
     /**
+     * @param array $strategy
+     * @param Request $request
      * @return Response
      */
-    public function getIndex(Request $request);
+    public function executeStrategy(array $strategy, Request $request);
 
-    /**
-     * @return Response
-     */
-    public function getSingle(Request $request);
-
-    /**
-     * @return Response
-     */
-    public function filter(Request $request);
-
-    /**
-     * @return Response
-     */
-    public function create(Request $request);
-
-    /**
-     * @return Response
-     */
-    public function update(Request $request);
-
-    /**
-     * @return Response
-     */
-    public function delete(Request $request);
 }

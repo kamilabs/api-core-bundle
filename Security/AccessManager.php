@@ -42,7 +42,9 @@ class AccessManager
     {
         $this->tokenStorage = $tokenStorage;
         $this->reader = $annotationReader;
-        $this->userRoles = $tokenStorage->getToken()->getUser()->getRoles();
+        if ($tokenStorage->getToken()->getUser() instanceof UserInterface) {
+            $this->userRoles = $tokenStorage->getToken()->getUser()->getRoles();
+        }
     }
 
 

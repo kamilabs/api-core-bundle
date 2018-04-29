@@ -41,7 +41,7 @@ kami_api_core:
 Add KamiApiCore routing loader
 ```yaml
 kami_api_core:
-    resource: "@KamiApiCoreBundle/Resources/config/routing.yml"
+    resource: '@KamiApiCoreBundle/Resources/config/routing.xml'
 ```
 
 Now you are good to go.
@@ -57,6 +57,9 @@ Bundle will generate 5 routes for each resource you specified in your config
 * `PUT /api/your-resource-name/{id}` - Update resource
 * `DELETE /api/your-resource-name/{id}` - Delete resource
 
+Optionally if resource entity implements `KamiApiCoreBundle\Model\UserAwareInterface`  additonal route will be generated
+
+* `GET /api/my/your-resource-name` - Get resources belonged to current user 
 
 > #### Note! You must clear your cache after modifying your resources 
 
@@ -64,6 +67,11 @@ Bundle will generate 5 routes for each resource you specified in your config
 You have to define access rules in your entity using annotations.
 By default all resources have restricted access. You must explicitly grant
 access to each user role. 
+
+### Strategies
+
+Bundle utilizes [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) and has default strategy for each route
+
 
   
 ### Form generation
@@ -232,7 +240,7 @@ class YourEntity
     ...
         
     /**
-     * CanBeUpdatedBy({"ROLE_USER", "ROLE_ADMIN"})
+     * @Api\CanBeUpdatedBy({"ROLE_USER", "ROLE_ADMIN"})
      * @ORM\Column(name="property", type="string", length=255)
      */
     private $property;

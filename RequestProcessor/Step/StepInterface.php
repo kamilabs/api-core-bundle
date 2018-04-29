@@ -13,14 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 interface StepInterface
 {
     /**
-     * StepInterface constructor.
-     *
-     * @param Request $request
-     * @param ResponseInterface $response
-     */
-    public function __construct(Request $request, ResponseInterface $response);
-
-    /**
      * @return ResponseInterface
      */
     public function execute();
@@ -35,4 +27,17 @@ interface StepInterface
      */
     public function getName();
 
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return StepInterface
+     */
+    public function setPreviousResponse(ResponseInterface $response);
+
+    /**
+     * @param Request $request
+     *
+     * @return StepInterface
+     */
+    public function setRequest(Request $request);
 }

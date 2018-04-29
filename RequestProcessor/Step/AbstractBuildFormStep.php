@@ -10,6 +10,7 @@ use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 
 abstract class AbstractBuildFormStep extends AbstractStep
 {
@@ -29,26 +30,16 @@ abstract class AbstractBuildFormStep extends AbstractStep
     protected $reader;
 
     /**
-     * @param FormFactory $formFactory
-     */
-    public function setFormFactory(FormFactory $formFactory)
-    {
-        $this->formFactory = $formFactory;
-    }
-
-    /**
+     * AbstractBuildFormStep constructor.
+     *
+     * @param FormFactoryInterface $formFactory
      * @param AccessManager $accessManager
-     */
-    public function setAccessManager($accessManager)
-    {
-        $this->accessManager = $accessManager;
-    }
-
-    /**
      * @param Reader $reader
      */
-    public function setReader(Reader $reader)
+    public function __construct(FormFactoryInterface $formFactory, AccessManager $accessManager, Reader $reader)
     {
+        $this->formFactory = $formFactory;
+        $this->accessManager = $accessManager;
         $this->reader = $reader;
     }
 
@@ -71,6 +62,9 @@ abstract class AbstractBuildFormStep extends AbstractStep
         return $builder;
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'generic_build_form_step';

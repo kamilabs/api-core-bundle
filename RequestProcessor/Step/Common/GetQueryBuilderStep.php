@@ -12,14 +12,14 @@ class GetQueryBuilderStep extends AbstractStep
      */
     private $doctrine;
 
+    public function __construct(Registry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
     public function execute()
     {
         return $this->createResponse(['query_builder' => $this->doctrine->getManager()->createQueryBuilder()]);
-    }
-
-    public function setDoctrine(Registry $doctrine)
-    {
-        $this->doctrine = $doctrine;
     }
 
     public function requiresBefore()

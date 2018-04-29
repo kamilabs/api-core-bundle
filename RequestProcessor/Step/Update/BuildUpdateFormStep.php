@@ -9,7 +9,7 @@ use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractBuildFormStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
 
-class BuildUpdateForm extends AbstractBuildFormStep
+class BuildUpdateFormStep extends AbstractBuildFormStep
 {
     public function execute()
     {

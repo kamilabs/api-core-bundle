@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kami\ApiCoreBundle\RequestProcessor\Step\Single;
+namespace Kami\ApiCoreBundle\RequestProcessor\Step\Item;
 
 
 use Doctrine\ORM\QueryBuilder;

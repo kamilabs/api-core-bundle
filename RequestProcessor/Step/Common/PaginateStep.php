@@ -3,10 +3,11 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
-use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class PaginateStep
@@ -16,22 +17,46 @@ class PaginateStep extends AbstractStep
 {
     protected $maxPerPage;
 
-    public function execute()
-    {
-        $adapter = new DoctrineORMAdapter($this->getFromResponse('query_builder'));
-        $pagerfanta = new Pagerfanta($adapter);
-        $pagerfanta->setMaxPerPage($this->maxPerPage);
-        $pagerfanta->setCurrentPage($this->request->query->getInt('page', 1));
-
-        return $this->createResponse(['paginator' => $pagerfanta]);
-    }
-
     /**
      * @param int $maxPerPage
      */
-    public function setMaxPerPage($maxPerPage)
+    public function __construct($maxPerPage)
     {
         $this->maxPerPage = $maxPerPage;
+    }
+
+    public function execute()
+    {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->getFromResponse('query_builder');
+
+        $totalQueryBuilder = clone $queryBuilder;
+
+        try {
+            $total = $totalQueryBuilder
+                ->select('count(distinct(e))')
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NonUniqueResultException $exception) {
+            throw new BadRequestHttpException();
+        }
+
+        $currentPage = $this->request->query->getInt('page', 1);
+        $totalPages = ceil($total/$this->maxPerPage);
+
+        if ($currentPage < 1 || $currentPage > $totalPages) {
+            throw new NotFoundHttpException();
+        }
+
+        $queryBuilder->setFirstResult($this->maxPerPage * ($currentPage - 1));
+        $queryBuilder->setMaxResults($this->maxPerPage);
+
+        return $this->createResponse(['response_data' => [
+            'rows'  => $queryBuilder->getQuery()->getResult(),
+            'total' => $total,
+            'current_page' => $currentPage,
+            'total_pages' => $totalPages
+        ]]);
     }
 
     public function requiresBefore()

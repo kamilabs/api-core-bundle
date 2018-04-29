@@ -3,108 +3,29 @@
 namespace Kami\ApiCoreBundle\RequestProcessor;
 
 
-use Kami\ApiCoreBundle\RequestProcessing\Strategy\RequestProcessorInterface;
 use Kami\ApiCoreBundle\RequestProcessor\Step\StepInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class DefaultRequestProcessor implements RequestProcessorInterface
 {
-    /**
-     * @var array
-     */
-    protected $indexStrategy;
+    protected $availableSteps;
 
-    /**
-     * @var array
-     */
-    protected $singleStrategy;
+    protected $executedSteps;
 
-    /**
-     * @var array
-     */
-    protected $filterStrategy;
-
-    /**
-     * @var array
-     */
-    protected $createStrategy;
-
-    /**
-     * @var array
-     */
-    protected $updateStrategy;
-
-    /**
-     * @var array
-     */
-    protected $deleteStrategy;
-
-    /**
-     * @var array
-     */
-    protected $myStrategy;
-
-    /**
-     * @param Request $request
-     * @return ProcessorResponse|ResponseInterface|\Symfony\Component\HttpFoundation\Response
-     */
-    public function getIndex(Request $request)
+    public function addStep($shortcut, StepInterface $step)
     {
-        return $this->executeStrategy($this->indexStrategy, $request);
+        $this->availableSteps[$shortcut] = $step;
     }
 
-    public function getSingle(Request $request)
-    {
-        return $this->executeStrategy($this->singleStrategy, $request);
-    }
-
-    public function filter(Request $request)
-    {
-        return $this->executeStrategy($this->filterStrategy, $request);
-    }
-
-    public function create(Request $request)
-    {
-        return $this->executeStrategy($this->createStrategy, $request);
-    }
-
-    public function update(Request $request)
-    {
-        return $this->executeStrategy($this->updateStrategy, $request);
-    }
-
-    public function delete(Request $request)
-    {
-        return $this->executeStrategy($this->deleteStrategy, $request);
-    }
-
-    public function my(Request $request)
-    {
-        return $this->executeStrategy($this->myStrategy, $request);
-    }
-
-    protected function executeStrategy(array $strategy, Request $request)
+    public function executeStrategy(array $strategy, Request $request)
     {
         $response = new ProcessorResponse($request, []);
-        $executedSteps = [];
+        $this->executedSteps = [];
 
-        foreach ($strategy as $step) { /** @var StepInterface $step */
-            if (!in_array($step->requiresBefore(), $executedSteps)) {
-                throw new ProcessingException(
-                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n" .
-                    "Required steps are: " . implode(',',  $step->requiresBefore())
-                );
+        foreach ($strategy as $shortcut) {
+            $step = $this->availableSteps[$shortcut];
 
-            }
-
-            $response = $step->execute();
-
-            if(!$response) {
-                throw new ProcessingException(
-                    sprintf('RequestProcessor didn\'t receive any response from %s'), get_class($step));
-            }
-            $executedSteps[] = $step->getName();
-
+            $response = $this->executeStep($step, $request, $response);
             if (200 !== $response->getStatus()) {
                 break;
             }
@@ -113,5 +34,35 @@ class DefaultRequestProcessor implements RequestProcessorInterface
         return $response->toHttpResponse();
     }
 
+    protected function executeStep(StepInterface $step, $request, $response)
+    {
+        $this->checkHasPassedRequiredSteps($step);
+        $step->setRequest($request);
+        $step->setPreviousResponse($response);
+        $response = $step->execute();
 
+        if(!$response) {
+            throw new ProcessingException(
+                sprintf('RequestProcessor didn\'t receive any response from %s', get_class($step)));
+        }
+
+        $this->executedSteps[] = $step->getName();
+
+        return $response;
+    }
+
+    protected function checkHasPassedRequiredSteps(StepInterface $step)
+    {
+        if (0 === count($step->requiresBefore())) {
+            return;
+        }
+        foreach ($step->requiresBefore() as $requiredStep) {
+            if (!in_array($requiredStep, $this->executedSteps)) {
+                throw new ProcessingException(
+                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n" .
+                    "Required steps are: " . implode(',',  $step->requiresBefore())
+                );
+            }
+        }
+    }
 }

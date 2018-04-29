@@ -20,7 +20,7 @@ class HandleRequestStep extends AbstractStep
             throw new BadRequestHttpException('Form is supposed to be submitted with this request');
         }
 
-        $this->createResponse(['form' => $form]);
+        return $this->createResponse(['form' => $form]);
     }
 
     public function requiresBefore()

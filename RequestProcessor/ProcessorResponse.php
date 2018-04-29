@@ -33,6 +33,7 @@ class ProcessorResponse implements ResponseInterface
         $this->request = $request;
         $this->data = $data;
         $this->isHttpReady = $httpReady;
+        $this->status = $status;
     }
 
     public function toHttpResponse()
@@ -40,15 +41,23 @@ class ProcessorResponse implements ResponseInterface
         if (!$this->isHttpReady) {
            throw new ProcessingException('Response is not ready yet to be set as http');
         }
-        $this->createResponse($this->request);
+        return $this->createResponse($this->request);
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getData()
     {
        return $this->data;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**

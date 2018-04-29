@@ -9,7 +9,8 @@ class GetEntityFromReflectionStep extends AbstractStep
 {
     public function execute()
     {
-        $entity = new ($this->getFromResponse('reflection')->getName());
+        $class = $this->getFromResponse('reflection')->getName();
+        $entity = new $class;
 
         return $this->createResponse(['entity' => $entity]);
     }

@@ -3,6 +3,7 @@
 
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
@@ -15,6 +16,11 @@ class PersistStep extends AbstractStep
      */
     protected $manager;
 
+    public function __construct(Registry $doctrine)
+    {
+        $this->manager = $doctrine->getManager();
+    }
+
     public function execute()
     {
         $entity = $this->getFromResponse('entity');
@@ -22,16 +28,11 @@ class PersistStep extends AbstractStep
         try {
             $this->manager->persist($entity);
             $this->manager->flush();
-        } catch (ORMException $exception) {
+        } catch (\Exception $exception) {
             throw new BadRequestHttpException('Your request can not be stored', $exception);
         }
 
-        $this->createResponse(['response_data' => $entity], true, 200);
-    }
-
-    public function setDoctrine(EntityManager $manager)
-    {
-        $this->manager = $manager;
+        return $this->createResponse(['response_data' => $entity]);
     }
 
     public function requiresBefore()

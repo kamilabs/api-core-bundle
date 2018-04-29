@@ -17,43 +17,38 @@ class ValidateResourceAccessStep extends AbstractStep
     protected $accessManager;
 
     /**
+     * @var array
+     */
+    protected $validatorMap = [
+        'GET' => 'canAccessResource',
+        'POST' => 'canCreateResource',
+        'PUT' => 'canUpdateResource',
+        'DELETE' => 'canDeleteResource'
+    ];
+
+    /**
+     * ValidateResourceAccessStep constructor.
+     *
+     * @param AccessManager $accessManager
+     */
+    public function __construct(AccessManager $accessManager)
+    {
+        $this->accessManager = $accessManager;
+    }
+
+    /**
      * @return ResponseInterface
      */
     public function execute()
     {
         /** @var \ReflectionClass $reflection */
         $reflection = $this->getFromResponse('reflection');
-
-        switch ($this->request->getMethod()) {
-            case 'GET':
-                if (!$this->accessManager->canAccessResource($reflection)) {
-                    throw new AccessDeniedHttpException();
-                }
-                break;
-            case 'POST':
-                if (!$this->accessManager->canCreateResource($reflection)) {
-                    throw new AccessDeniedHttpException();
-                }
-                break;
-            case 'PUT':
-                if (!$this->accessManager->canUpdateResource($reflection)) {
-                    throw new AccessDeniedHttpException();
-                }
-                break;
-            case 'DELETE':
-                if (!$this->accessManager->canDeleteResource($reflection)) {
-                    throw new AccessDeniedHttpException();
-                }
-                break;
+        $method = $this->validatorMap[$this->request->getMethod()];
+        if (!call_user_func([$this->accessManager, $method], $reflection)) {
+           throw new AccessDeniedHttpException();
         }
 
-
         return new ProcessorResponse($this->request, $this->response->getData());
-    }
-
-    public function setAccessManager(AccessManager $accessManager)
-    {
-        $this->accessManager = $accessManager;
     }
 
     public function requiresBefore()

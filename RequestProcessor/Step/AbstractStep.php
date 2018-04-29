@@ -19,12 +19,6 @@ abstract class AbstractStep implements StepInterface
      */
     protected $response;
 
-    public function __construct(Request $request, ResponseInterface $response)
-    {
-        $this->request = $request;
-        $this->response = $response;
-    }
-
     /**
      * @param array $data
      * @param bool $isHttpReady
@@ -36,7 +30,7 @@ abstract class AbstractStep implements StepInterface
     {
         return new ProcessorResponse(
             $this->request,
-            array_merge($data, $this->response->getData()),
+            array_merge($this->response->getData(), $data),
             $isHttpReady,
             $status
         );
@@ -47,9 +41,20 @@ abstract class AbstractStep implements StepInterface
         return array_key_exists($key, $this->response->getData()) ? $this->response->getData()[$key] : null;
     }
 
+    public function setPreviousResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+    }
 
     public function getName()
     {
-        return self::class;
+        return get_class($this);
     }
 }
