@@ -5,7 +5,7 @@ namespace Kami\ApiCoreBundle\Annotation;
 /**
  * @Annotation
  */
-class CanBeEditedBy
+class CanBeUpdatedBy
 {
     public $roles;
 }

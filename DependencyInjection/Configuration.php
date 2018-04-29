@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->isRequired()->end()
                         ->scalarNode('entity')->isRequired()->end()
+                        ->scalarNode('request_processing_strategy')
                     ->end()
                 ->end()
             ->end()

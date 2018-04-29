@@ -387,23 +387,7 @@ class ApiManager
         }
     }
 
-    /**
-     * @param mixed $data
-     * @param Request $request
-     * @param int $status
-     *
-     * @return Response
-     */
-    private function createResponse($data, Request $request, $status = 200)
-    {
-        $format = $request->attributes->get('_format');
 
-        return new Response(
-            $this->serializer->serialize($data, $format),
-            $status,
-            ['Content-type' => $this->getContentTypeByFormat($format)]
-        );
-    }
 
     private function getEntityReflectionFromRequest(Request $request)
     {

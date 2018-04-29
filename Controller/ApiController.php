@@ -36,4 +36,9 @@ class ApiController extends Controller
     {
         return $this->get('kami_api_core.api_manager')->deleteResource($request);
     }
+
+    public function myAction()
+    {
+
+    }
 }

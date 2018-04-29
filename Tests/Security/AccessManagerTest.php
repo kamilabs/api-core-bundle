@@ -9,10 +9,10 @@ use Kami\ApiCoreBundle\Annotation\Access;
 use Kami\ApiCoreBundle\Annotation\AnonymousAccess;
 use Kami\ApiCoreBundle\Annotation\AnonymousCreate;
 use Kami\ApiCoreBundle\Annotation\AnonymousDelete;
-use Kami\ApiCoreBundle\Annotation\AnonymousEdit;
+use Kami\ApiCoreBundle\Annotation\AnonymousUpdate;
 use Kami\ApiCoreBundle\Annotation\CanBeCreatedBy;
 use Kami\ApiCoreBundle\Annotation\CanBeDeletedBy;
-use Kami\ApiCoreBundle\Annotation\CanBeEditedBy;
+use Kami\ApiCoreBundle\Annotation\CanBeUpdatedBy;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
@@ -98,7 +98,7 @@ class AccessManagerTest extends WebTestCase
     {
         $tokenStorageMock = $this->mock(TokenStorage::class);
         $reflection = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeEditedBy()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeUpdatedBy()], $reflection);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canAccessResource($reflection));
@@ -167,7 +167,7 @@ class AccessManagerTest extends WebTestCase
     {
         $tokenStorageMock = $this->mock(TokenStorage::class);
         $reflection = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeEditedBy()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeUpdatedBy()], $reflection);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateResource($reflection));
@@ -224,7 +224,7 @@ class AccessManagerTest extends WebTestCase
     {
         $tokenStorageMock = $this->mock(TokenStorage::class);
         $reflection = $this->mock(\ReflectionProperty::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new CanBeEditedBy()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new CanBeUpdatedBy()], $reflection);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateProperty($reflection));
@@ -249,7 +249,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionMock = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [new AnonymousEdit()], $reflectionMock);
+        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [new AnonymousUpdate()], $reflectionMock);
 
         $accessManager = new AccessManager($tokenMock, $annReader);
         $this->assertTrue($accessManager->canEditResource($reflectionMock));
@@ -264,7 +264,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
 
-        $access = new CanBeEditedBy();
+        $access = new CanBeUpdatedBy();
         $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
         $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflectionPropertyMock);
 
@@ -281,7 +281,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
 
-        $access = new CanBeEditedBy();
+        $access = new CanBeUpdatedBy();
         $access->roles = ['ROLE_ADMIN'];
         $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflectionPropertyMock);
 
@@ -319,7 +319,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
 
-        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [new AnonymousEdit()], $reflectionPropertyMock);
+        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [new AnonymousUpdate()], $reflectionPropertyMock);
 
         $accessManager = new AccessManager($tokenMock, $annReader);
         $this->assertTrue($accessManager->canEditProperty($reflectionPropertyMock));
@@ -334,7 +334,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
 
-        $access = new CanBeEditedBy();
+        $access = new CanBeUpdatedBy();
         $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
         $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [$access], $reflectionPropertyMock);
 
@@ -351,7 +351,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
 
-        $access = new CanBeEditedBy();
+        $access = new CanBeUpdatedBy();
         $access->roles = ['ROLE_ADMIN'];
         $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [$access], $reflectionPropertyMock);
 

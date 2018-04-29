@@ -5,6 +5,6 @@ namespace Kami\ApiCoreBundle\Annotation;
 /**
  * @Annotation
  */
-class AnonymousEdit
+class AnonymousUpdate
 {
 }

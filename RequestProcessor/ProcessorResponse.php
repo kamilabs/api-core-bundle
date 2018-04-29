@@ -1,0 +1,88 @@
+<?php
+
+namespace Kami\ApiCoreBundle\RequestProcessor;
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+
+class ProcessorResponse implements ResponseInterface
+{
+    /**
+     * @var array
+     */
+    protected $data;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var int
+     */
+    protected $status;
+
+    /**
+     * @var bool
+     */
+    protected $isHttpReady = false;
+
+    public function __construct(Request $request, array $data, $httpReady = false, $status = 200)
+    {
+        $this->request = $request;
+        $this->data = $data;
+        $this->isHttpReady = $httpReady;
+    }
+
+    public function toHttpResponse()
+    {
+        if (!$this->isHttpReady) {
+           throw new ProcessingException('Response is not ready yet to be set as http');
+        }
+        $this->createResponse($this->request);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+       return $this->data;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    private function createResponse(Request $request)
+    {
+        $format = $request->attributes->get('_format');
+
+        return new Response(
+            $this->data['response_data'],
+            $this->status,
+            ['Content-type' => $this->getContentTypeByFormat($format)]
+        );
+    }
+
+    /**
+     * @param string $format
+     * @return string
+     */
+    private function getContentTypeByFormat($format)
+    {
+        switch ($format) {
+            case 'json':
+                return 'application/json';
+                break;
+            case 'xml':
+                return 'application/xml';
+                break;
+            default:
+                return 'text/plain';
+                break;
+        }
+    }
+}

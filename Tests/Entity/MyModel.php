@@ -15,7 +15,7 @@ use Kami\ApiCoreBundle\Annotation as Api;
  * @Api\AnonymousAccess()
  * @Api\Access({"ROLE_ADMIN", "ROLE_USER"})
  * @Api\CanBeCreatedBy({"ROLE_ADMIN", "ROLE_USER"})
- * @Api\CanBeEditedBy({"ROLE_ADMIN"})
+ * @Api\CanBeUpdatedBy({"ROLE_ADMIN"})
  */
 class MyModel
 {
@@ -34,7 +34,7 @@ class MyModel
      * @ORM\Column(name="title", type="string", length=255)
      * @Assert\NotBlank()
      * @Api\Access({"ROLE_ADMIN", "ROLE_USER"})
-     * @Api\CanBeEditedBy({"ROLE_ADMIN"})
+     * @Api\CanBeUpdatedBy({"ROLE_ADMIN"})
      */
     private $title;
 

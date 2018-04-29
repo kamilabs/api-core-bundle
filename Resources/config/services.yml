@@ -9,7 +9,7 @@ services:
     kami_api_core.routing_loader:
         class: "%kami_api_core.routing_loader.class%"
         arguments:
-          - "%kami_api_core.resources%"
+          - "%kami_api_core.Resources%"
           - "%kami_api_core.locales%"
           - "%kernel.default_locale%"
         tags: [ routing.loader ]
@@ -45,4 +45,29 @@ services:
           - "@event_dispatcher"
           - "%kami_api_core.pagination.per_page%"
         public: true
+
+
+    kami_api_core.step.get_reflection_from_request:
+        class:
+    kami_api_core.step.validate_resource_access:
+        calls:
+            - method: setReader
+              arguments: ["@annotation_reader"]
+            - method: setTokenStorage
+              arguments: ["@security.token_storage"]
+        tags:
+            - { name: 'api_core.request_processor.step' }
+
+    kami_api_core.step.get_doctrine_repository:
+        calls:
+            - method: setDoctrine
+              arguments: [ "@doctrine" ]
+        tags:
+            - { name: 'api_core.request_processor.step' }
+
+    kami_api_core.step.build_index_query:
+
+    kami_api_core.step.paginate_query:
+
+    kami_api_core.step.send_index_response:
 

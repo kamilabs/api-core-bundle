@@ -5,7 +5,7 @@ namespace Kami\ApiCoreBundle\Form;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
 use Kami\ApiCoreBundle\Annotation\CanBeCreatedBy;
-use Kami\ApiCoreBundle\Annotation\CanBeEditedBy;
+use Kami\ApiCoreBundle\Annotation\CanBeUpdatedBy;
 use Kami\ApiCoreBundle\Annotation\Form;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Component\Form\Extension\Core\Type\FormType;

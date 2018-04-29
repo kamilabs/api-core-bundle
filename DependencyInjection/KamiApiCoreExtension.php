@@ -22,7 +22,7 @@ class KamiApiCoreExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('kami_api_core.resources', $config['resources']);
+        $container->setParameter('kami_api_core.resources', $config['Resources']);
         $container->setParameter('kami_api_core.locales', $config['locales']);
         $container->setParameter('kami_api_core.pagination.per_page', $config['pagination']['per_page']);
 

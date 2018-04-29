@@ -1,0 +1,44 @@
+<?php
+
+
+namespace Kami\ApiCoreBundle\RequestProcessor\Step\Delete;
+
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
+use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\ApiCoreBundle\RequestProcessor\Step\Common\FetchEntityByIdStep;
+use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+class DeleteStep extends AbstractStep
+{
+    /**
+     * @var EntityManager
+     */
+    protected  $manager;
+
+    public function execute()
+    {
+        $entity = $this->getFromResponse('entity');
+
+        try {
+            $this->manager->remove($entity);
+            $this->manager->flush();
+        } catch (ORMException $exception) {
+            throw new BadRequestHttpException('Your request can not be processed', $exception);
+        }
+
+        $this->createResponse(['response_data' => null], true, 204);
+    }
+
+    public function setDoctrine(EntityManager $manager)
+    {
+        $this->manager = $manager;
+    }
+
+    public function requiresBefore()
+    {
+        return [ValidateResourceAccessStep::class, FetchEntityByIdStep::class];
+    }
+
+}

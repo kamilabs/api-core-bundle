@@ -170,7 +170,7 @@ namespace AppBundle\Entity;
 use Kami\ApiCoreBundle\Annotation as Api;
 
 /**
- * @Api\AnonymousEdit
+ * AnonymousUpdate
  */
 class YourEntity
 {
@@ -225,14 +225,14 @@ namespace AppBundle\Entity;
 use Kami\ApiCoreBundle\Annotation as Api;
 
 /**
- * @Api\CanBeEditedBy({"ROLE_USER", "ROLE_ADMIN"})
+ * CanBeUpdatedBy({"ROLE_USER", "ROLE_ADMIN"})
  */
 class YourEntity
 {
     ...
         
     /**
-     * @Api\CanBeEditedBy({"ROLE_USER", "ROLE_ADMIN"})
+     * CanBeUpdatedBy({"ROLE_USER", "ROLE_ADMIN"})
      * @ORM\Column(name="property", type="string", length=255)
      */
     private $property;
