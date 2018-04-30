@@ -9,6 +9,7 @@
             <parameter>validate_resource_access</parameter>
             <parameter>get_query_builder</parameter>
             <parameter>build_select_query</parameter>
+            <parameter>sort</parameter>
             <parameter>paginate</parameter>
             <parameter>serialize_response_data</parameter>
         </parameter>
@@ -56,6 +57,7 @@
             <parameter>build_select_query</parameter>
             <parameter>validate_filters</parameter>
             <parameter>filter</parameter>
+            <parameter>sort</parameter>
             <parameter>paginate</parameter>
             <parameter>serialize_response_data</parameter>
         </parameter>

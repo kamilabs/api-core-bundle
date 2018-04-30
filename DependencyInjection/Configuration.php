@@ -25,6 +25,8 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->isRequired()->end()
                         ->scalarNode('entity')->isRequired()->end()
+                        ->scalarNode('default_sort')->defaultValue('id')->cannotBeEmpty()->end()
+                        ->scalarNode('default_sort_direction')->defaultValue('asc')->cannotBeEmpty()->end()
                         ->scalarNode('request_processor')
                             ->cannotBeEmpty()
                             ->defaultValue('kami.api_core.request_processor.default')

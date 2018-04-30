@@ -71,12 +71,32 @@ access to each user role.
 ### Strategies
 
 Bundle utilizes [Strategy pattern](https://en.wikipedia.org/wiki/Strategy_pattern) and has default strategy for each route
+You can override any of strategy by resource configuration:
 
+#### Example
+```yaml
+# app/config/config.yml
 
-  
+kami_api_core:
+  locales: ['en', 'de']
+  resources:
+      - name: your-resource-name 
+        entity: AppBundle\Entity\YourEntiy 
+        strategies:
+            index:  "%my_awesome_index_strategy%"
+            filter: "%my_awesome_filter_strategy%" 
+            item:   "%my_awesome_item_strategy%"
+            create: "%my_awesome_create_strategy%"
+            update: "%my_awesome_update_strategy%"
+            delete: "%my_awesome_delete_strategy%"
+
+```
+
 ### Form generation
-Bundle will generate forms for both `POST` and `PUT` actions. See `@CanBeCreatedBy`, 
-`@CanBeEditedBy`, `@AnonymousCreate`, `@AnonymousEdit` and `@Form` in annotation reference.  
+Default strategy will generate forms for both `POST` and `PUT` actions.
+Only accessible fields for current user will be included.
+ 
+See `@CanBeCreatedBy`, `@CanBeEditedBy`, `@AnonymousCreate`, `@AnonymousEdit` and `@Form` in annotation reference.  
 
 ### Request body converter
 
@@ -106,6 +126,14 @@ Available filters are:
 {"type": "lk", "property": "title", "value": "foo"}]
 // Between
 {"type": "bw", "property": "id", "min": 1, "max": 5}]
+```
+### Sort
+
+You can sort `index` and `filter` route responses using `sort` and `direction` query params.
+`sort` parameter should represent field of your entity, while `direction` can be either `asc` or `desc`
+#### Example
+```
+GET /api/your-resource-name?sort=property&direction=desc
 ```
 
 ## Annotations reference
