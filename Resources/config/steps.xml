@@ -87,8 +87,8 @@
         </service>
 
         <service id="kami.api_core.step.filter.filter"
-                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Delete\DeleteStep">
-            <argument type="service" id="doctrine"/>
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Filter\FilterStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
             <tag name="kami_api_core.strategy_step" shortcut="filter"/>
         </service>
 
@@ -100,6 +100,10 @@
         <service id="kami.api_core.item.single.set_selected_data"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Item\SetSelectedDataStep">
             <tag name="kami_api_core.strategy_step" shortcut="item_set_selected_data"/>
+        </service>
+        <service id="kami.api_core.item.filter.validate_filters"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Filter\ValidateFilters">
+            <tag name="kami_api_core.strategy_step" shortcut="validate_filters"/>
         </service>
 
         <service id="kami.api_core.step.update.build_update_form"

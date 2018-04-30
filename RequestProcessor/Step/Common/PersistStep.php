@@ -37,7 +37,7 @@ class PersistStep extends AbstractStep
 
     public function requiresBefore()
     {
-        return [ValidateFormStep::class, GetEntityFromReflectionStep::class];
+        return [ValidateFormStep::class];
     }
 
 

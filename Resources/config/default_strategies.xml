@@ -43,5 +43,21 @@
             <parameter>trim_response</parameter>
             <parameter>serialize_response_data</parameter>
         </parameter>
+        <parameter key="kami.api_core.strategy.default.delete" type="collection">
+            <parameter>get_reflection_from_request</parameter>
+            <parameter>validate_resource_access</parameter>
+            <parameter>fetch_entity_by_id</parameter>
+            <parameter>delete</parameter>
+        </parameter>
+        <parameter key="kami.api_core.strategy.default.filter" type="collection">
+            <parameter>get_reflection_from_request</parameter>
+            <parameter>validate_resource_access</parameter>
+            <parameter>get_query_builder</parameter>
+            <parameter>build_select_query</parameter>
+            <parameter>validate_filters</parameter>
+            <parameter>filter</parameter>
+            <parameter>paginate</parameter>
+            <parameter>serialize_response_data</parameter>
+        </parameter>
     </parameters>
 </container>

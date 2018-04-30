@@ -9,3 +9,4 @@ _30th, April 2018_
 * Refactored `Security\AccessManager`
 * Added `Model\UserAwareInterface`
 * Improved testability
+* Added filter language

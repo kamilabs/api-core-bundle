@@ -35,7 +35,7 @@ class DeleteStep extends AbstractStep
             throw new BadRequestHttpException('Your request can not be processed', $exception);
         }
 
-        $this->createResponse(['response_data' => null], true, 204);
+        return $this->createResponse(['response_data' => null], true, 204);
     }
 
     public function requiresBefore()
