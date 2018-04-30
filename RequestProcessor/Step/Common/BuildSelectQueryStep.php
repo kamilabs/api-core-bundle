@@ -28,7 +28,7 @@ class BuildSelectQueryStep extends AbstractStep
         $queryBuilder->from($reflection->getName(), 'e');
 
         foreach ($reflection->getProperties() as $property) {
-            if($this->accessManager->canAccessProperty($property)) {
+            if ($this->accessManager->canAccessProperty($property)) {
                 $queryBuilder
                     ->addSelect('e.'.$property->getName());
             }

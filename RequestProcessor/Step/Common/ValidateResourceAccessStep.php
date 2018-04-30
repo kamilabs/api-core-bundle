@@ -45,7 +45,7 @@ class ValidateResourceAccessStep extends AbstractStep
         $reflection = $this->getFromResponse('reflection');
         $method = $this->validatorMap[$this->request->getMethod()];
         if (!call_user_func([$this->accessManager, $method], $reflection)) {
-           throw new AccessDeniedHttpException();
+            throw new AccessDeniedHttpException();
         }
 
         return new ProcessorResponse($this->request, $this->response->getData());

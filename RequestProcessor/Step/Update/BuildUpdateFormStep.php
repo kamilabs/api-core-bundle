@@ -19,7 +19,7 @@ class BuildUpdateFormStep extends AbstractBuildFormStep
 
         foreach ($reflection->getProperties() as $property) {
             if ($this->accessManager->canUpdateProperty($property)) {
-                if($annotation = $this->reader->getPropertyAnnotation($property, Form::class)) {
+                if ($annotation = $this->reader->getPropertyAnnotation($property, Form::class)) {
                     $builder->add($property->getName(), $annotation->type, $annotation->options);
                 }
                 $builder->add($property->getName());
