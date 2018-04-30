@@ -55,7 +55,7 @@ class AccessManager
         }
 
         if ($annotation = $this->reader->getPropertyAnnotation($property, Access::class)) {
-           return $this->hasRoleWithAccess($annotation);
+            return $this->hasRoleWithAccess($annotation);
         }
 
         return false;

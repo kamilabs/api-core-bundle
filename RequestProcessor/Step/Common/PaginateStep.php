@@ -48,7 +48,7 @@ class PaginateStep extends AbstractStep
             throw new NotFoundHttpException();
         }
 
-        $queryBuilder->setFirstResult($this->maxPerPage * ($currentPage - 1));
+        $queryBuilder->setFirstResult($this->maxPerPage*($currentPage - 1));
         $queryBuilder->setMaxResults($this->maxPerPage);
 
         return $this->createResponse(['response_data' => [

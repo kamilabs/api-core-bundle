@@ -41,7 +41,7 @@ class DefaultRequestProcessor implements RequestProcessorInterface
         $step->setPreviousResponse($response);
         $response = $step->execute();
 
-        if(!$response) {
+        if (!$response) {
             throw new ProcessingException(
                 sprintf('RequestProcessor didn\'t receive any response from %s', get_class($step)));
         }
@@ -59,8 +59,8 @@ class DefaultRequestProcessor implements RequestProcessorInterface
         foreach ($step->requiresBefore() as $requiredStep) {
             if (!in_array($requiredStep, $this->executedSteps)) {
                 throw new ProcessingException(
-                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n" .
-                    "Required steps are: " . implode(',',  $step->requiresBefore())
+                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n".
+                    "Required steps are: ".implode(',', $step->requiresBefore())
                 );
             }
         }
