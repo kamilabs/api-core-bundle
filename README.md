@@ -83,9 +83,30 @@ Bundle will generate forms for both `POST` and `PUT` actions. See `@CanBeCreated
 Most frontend libraries send form data as json. Bundle converts this payload
 and injects parameters to request data 
 
-## Extending
-Extending API is the easiest part here. No special actions required. Just create 
-additional routes and controllers.
+### Filters
+`GET /api/your-resource-name/filter` endpoint accepts query param `filter`, 
+it should contain base64 encoded json payload with applied filters
+
+#### Available filters with examples
+Available filters are:
+* `eq` - Equals
+* `gt` - Greater than
+* `lt` - Lower than
+* `lk` - Like
+* `bw` - Between
+##### Examples
+```json
+// Equals
+{"type": "eq", "property": "id", "value": 1}]
+// Greater than
+{"type": "gt", "property": "id", "value": 3}]
+// Lower than
+{"type": "lt", "property": "id", "value": 3}]
+// Like
+{"type": "lk", "property": "title", "value": "foo"}]
+// Between
+{"type": "bw", "property": "id", "min": 1, "max": 5}]
+```
 
 ## Annotations reference
 
@@ -133,6 +154,7 @@ class YourEntity
         
     /**
      * @ORM\Column(name="property", type="string", length=255)
+     * @Api\AnonymousAccess
      */
     private $property;
     
@@ -159,6 +181,7 @@ class YourEntity
         
     /**
      * @ORM\Column(name="property", type="string", length=255)
+     * @Api\AnonymousCreate 
      */
     private $property;
     
