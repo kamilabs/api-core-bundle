@@ -7,12 +7,27 @@ namespace Kami\ApiCoreBundle\Filter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+/**
+ * Class Validator
+ * @package Kami\ApiCoreBundle\Filter
+ */
 class Validator
 {
+    /**
+     * @var array
+     */
     protected  $filters = [];
 
+    /**
+     * @var array
+     */
     const ALLOWED_FILTERS = ['eq', 'gt', 'lt', 'in', 'bw', 'lk'];
 
+    /**
+     * Validator constructor.
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         if ($filter = $request->get('filter')) {
@@ -24,11 +39,17 @@ class Validator
         }
     }
 
+    /**
+     * @return array
+     */
     public function getFilters()
     {
         return $this->filters;
     }
 
+    /**
+     * Validates received in request filters
+     */
     protected function validate()
     {
         foreach ($this->filters as $filter) {
@@ -39,42 +60,64 @@ class Validator
         }
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateEqFilter($filter)
     {
         $required = ['property', 'value'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateGtFilter($filter)
     {
         $required = ['property', 'value'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateLtFilter($filter)
     {
         $required = ['property', 'value'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateInFilter($filter)
     {
         $required = ['property', 'value'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateBwFilter($filter)
     {
         $required = ['property', 'min', 'max'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $filter
+     */
     protected function validateLkFilter($filter)
     {
         $required = ['property', 'value'];
         $this->validateRequired($required, $filter);
     }
 
+    /**
+     * @param array $required
+     * @param array $filter
+     */
     protected function validateRequired($required, $filter)
     {
         foreach ($required as $param) {
