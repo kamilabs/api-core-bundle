@@ -6,7 +6,7 @@ use Kami\ApiCoreBundle\Routing\ApiCoreRoutingLoader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Routing\RouteCollection;
 
-class ApiLoaderTest extends WebTestCase
+class ApiCoreLoaderTest extends WebTestCase
 {
 // can be constructed with necessary params
 

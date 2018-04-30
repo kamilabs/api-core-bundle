@@ -9,26 +9,11 @@ use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 
 
 class BuildCreateFormStep extends AbstractBuildFormStep
 {
-    /**
-     * @var FormFactory
-     */
-    protected $formFactory;
-
-    /**
-     * @var AccessManager
-     */
-    protected $accessManager;
-
-    /**
-     * @var Reader
-     */
-    protected $reader;
-
     public function execute()
     {
         $builder = $this->getBaseFormBuilder();

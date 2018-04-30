@@ -5,17 +5,15 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 
 abstract class AbstractBuildFormStep extends AbstractStep
 {
     /**
-     * @var FormFactory
+     * @var FormFactoryInterface
      */
     protected $formFactory;
 
