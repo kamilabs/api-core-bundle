@@ -8,7 +8,7 @@ use Symfony\Component\Routing\RouteCollection;
 
 class ApiCoreLoaderTest extends WebTestCase
 {
-// can be constructed with necessary params
+    // can be constructed with necessary params
 
     public function testCanBeConstructedWithNecessaryParams()
     {

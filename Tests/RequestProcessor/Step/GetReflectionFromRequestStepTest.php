@@ -16,7 +16,10 @@ class GetReflectionFromRequestStepTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('_entity', Entity::class);
-        $step = new GetReflectionFromRequestStep($request, new ProcessorResponse($request, []));
+        $step = new GetReflectionFromRequestStep();
+        $step->setRequest($request);
+        $step->setPreviousResponse(new ProcessorResponse($request, []));
+
         $response = $step->execute();
         $this->assertInstanceOf(ProcessorResponse::class, $response);
         $this->assertInstanceOf(\ReflectionClass::class, $response->getData()['reflection']);
@@ -26,7 +29,9 @@ class GetReflectionFromRequestStepTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set('_entity', 'Not\Existing\Class');
-        $step = new GetReflectionFromRequestStep($request, new ProcessorResponse($request, []));
+        $step = new GetReflectionFromRequestStep();
+        $step->setPreviousResponse(new ProcessorResponse($request, []));
+        $step->setRequest($request);
         $this->expectException(NotFoundHttpException::class);
         $step->execute();
     }
@@ -34,7 +39,7 @@ class GetReflectionFromRequestStepTest extends TestCase
     public function testRequiresBefore()
     {
         $request = new Request();
-        $step = new GetReflectionFromRequestStep($request, new ProcessorResponse($request, []));
+        $step = new GetReflectionFromRequestStep();
         $this->assertEquals([], $step->requiresBefore());
     }
 }

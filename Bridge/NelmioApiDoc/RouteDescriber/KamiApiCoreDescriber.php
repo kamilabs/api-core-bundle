@@ -22,8 +22,9 @@ class KamiApiCoreDescriber implements RouteDescriberInterface
 
     public function describe(Swagger $api, Route $route, \ReflectionMethod $reflectionMethod)
     {
-        if (ApiController::class === $reflectionMethod->getDeclaringClass()) {
-            return $this->stenographer->getStenography();
+        if (ApiController::class === $reflectionMethod->getDeclaringClass()->getName()) {
+
+            $this->stenographer->getStenography($api, $route);
         }
     }
 

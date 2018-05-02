@@ -108,6 +108,7 @@ class ApiCoreRoutingLoader extends Loader
             '_strategy' => $resource['strategies']['index'],
             '_request_processor' => $resource['request_processor'],
             '_sort' => $resource['default_sort'],
+            '_resource_name' => $resource['name'],
             '_sort_direction' => $resource['default_sort_direction'],
             '_format' => 'json'
         ];
@@ -133,6 +134,7 @@ class ApiCoreRoutingLoader extends Loader
             '_request_processor' => $resource['request_processor'],
             '_sort' => $resource['default_sort'],
             '_sort_direction' => $resource['default_sort_direction'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -155,6 +157,7 @@ class ApiCoreRoutingLoader extends Loader
             '_entity' => $resource['entity'],
             '_strategy' => $resource['strategies']['item'],
             '_request_processor' => $resource['request_processor'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -178,6 +181,7 @@ class ApiCoreRoutingLoader extends Loader
             '_entity' => $resource['entity'],
             '_strategy' => $resource['strategies']['update'],
             '_request_processor' => $resource['request_processor'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -200,6 +204,7 @@ class ApiCoreRoutingLoader extends Loader
             '_entity' => $resource['entity'],
             '_strategy' => $resource['strategies']['create'],
             '_request_processor' => $resource['request_processor'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json'
         ];
         $requirements = [
@@ -223,6 +228,7 @@ class ApiCoreRoutingLoader extends Loader
             '_entity' => $resource['entity'],
             '_strategy' => $resource['strategies']['delete'],
             '_request_processor' => $resource['request_processor'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json',
         ];
         $requirements = [
@@ -246,6 +252,7 @@ class ApiCoreRoutingLoader extends Loader
             '_entity' => $resource['entity'],
             '_strategy' => $resource['strategies']['my'],
             '_request_processor' => $resource['request_processor'],
+            '_resource_name' => $resource['name'],
             '_format' => 'json'
         ];
         $requirements = [
