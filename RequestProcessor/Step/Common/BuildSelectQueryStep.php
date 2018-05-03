@@ -41,8 +41,6 @@ class BuildSelectQueryStep extends AbstractStep
     public function requiresBefore()
     {
         return [
-            GetReflectionFromRequestStep::class,
-            ValidateResourceAccessStep::class,
             GetQueryBuilderStep::class
         ];
     }

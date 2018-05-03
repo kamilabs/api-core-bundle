@@ -3,7 +3,6 @@
 namespace Kami\ApiCoreBundle\Security;
 
 use Doctrine\Common\Annotations\Reader;
-use JMS\Serializer\Metadata\PropertyMetadata;
 use Kami\ApiCoreBundle\Annotation\Access;
 use Kami\ApiCoreBundle\Annotation\AnonymousAccess;
 use Kami\ApiCoreBundle\Annotation\AnonymousCreate;

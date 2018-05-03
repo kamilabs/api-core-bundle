@@ -1,6 +1,6 @@
 <?php
 
-namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step;
+namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 
 use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
