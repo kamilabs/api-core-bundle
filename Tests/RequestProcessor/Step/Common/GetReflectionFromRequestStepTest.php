@@ -38,7 +38,6 @@ class GetReflectionFromRequestStepTest extends TestCase
 
     public function testRequiresBefore()
     {
-        $request = new Request();
         $step = new GetReflectionFromRequestStep();
         $this->assertEquals([], $step->requiresBefore());
     }
