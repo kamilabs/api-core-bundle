@@ -24,7 +24,7 @@ class FetchEntityByIdStep extends AbstractStep
     {
         /** @var \ReflectionClass $reflection */
         $reflection = $this->getFromResponse('reflection');
-        $entity = $this->doctrine->getRepository($reflection->getName())->find($this->request->get('id'), 0);
+        $entity = $this->doctrine->getRepository($reflection->getName())->find($this->request->get('id', 0));
 
         if (!$entity) {
             throw new NotFoundHttpException('Resource not found');
