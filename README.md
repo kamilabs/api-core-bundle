@@ -91,6 +91,100 @@ kami_api_core:
             delete: "%my_awesome_delete_strategy%"
 
 ```
+### Default strategies
+Default strategies are using following steps:
+
+#### Index
+* get_reflection_from_request
+* validate_resource_access
+* get_query_builder
+* build_select_query
+* sort
+* paginate
+* serialize_response_data
+#### Item
+* get_reflection_from_request
+* validate_resource_access
+* get_query_builder
+* build_select_query
+* item_add_where
+* item_set_selected_data
+* serialize_response_data
+#### Create
+* get_reflection_from_request
+* validate_resource_access
+* get_entity_from_reflection
+* build_create_form
+* handle_request
+* validate_form
+* persist
+* trim_response
+* serialize_response_data
+#### Update
+* get_reflection_from_request
+* validate_resource_access
+* fetch_entity_by_id
+* build_update_form
+* handle_request
+* validate_form
+* persist
+* trim_response
+* serialize_response_data
+#### Delete
+* get_reflection_from_request
+* validate_resource_access
+* fetch_entity_by_id
+* delete
+#### Filter
+* get_reflection_from_request
+* validate_resource_access
+* get_query_builder
+* build_select_query
+* validate_filters
+* filter
+* sort
+* paginate
+* serialize_response_data
+
+### Adding custom steps
+To add custom step just extend `Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep`
+
+**Example:**
+```php
+<?php 
+
+namespace Acme\AppBundle\Step;
+
+use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+
+class MyStep extends AbstractStep
+{
+    public function execute()
+    {
+        // Do your stuff here
+        
+        return $this->createResponse(['your_data' => $data]);
+    }
+
+    public function requiresBefore()
+    {
+        return [MyStep::class];
+    }
+}
+```
+```yaml
+# services.yml
+
+my_awesome_step: 
+    class: Acme\AppBundle\Step\MyStep
+    arguments:
+      - "@service"
+      - ...
+    tags: 
+      - { name: kami_api_core.strategy_step, shortcut: "my_step" }    
+        
+```
+
 
 ### Form generation
 Default strategy will generate forms for both `POST` and `PUT` actions.

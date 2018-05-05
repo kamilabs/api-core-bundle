@@ -22,7 +22,7 @@ class ApiCoreLoaderTest extends WebTestCase
 
     public function testLoad()
     {
-//        $loader = new ApiCoreRoutingLoader([0 => ['name' => 'my-model', 'entity' => 'Kami\ApiCoreBundle\Resources\Fixtures\Entity\MyModel']], [], 'en');
+//        $loader = new ApiCoreRoutingLoader([0 => ['name' => 'my-model', 'entity' => 'Kami\ApiCoreBundle\Resources\Fixtures\Entity\MyModel', 'strategies' => []]], [], 'en');
 //        $this->assertInstanceOf(RouteCollection::class, $loader->load(''));
     }
 }
