@@ -8,6 +8,7 @@
         <service id="kami.api_core.step.common.build_select_query"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSelectQueryStep">
             <argument type="service" id="kami.api_core.access_manager"/>
+            <argument type="service" id="annotations.reader"/>
             <tag name="kami_api_core.strategy_step" shortcut="build_select_query"/>
         </service>
 

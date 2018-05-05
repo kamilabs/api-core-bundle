@@ -3,10 +3,9 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -31,15 +30,8 @@ class PaginateStep extends AbstractStep
         $queryBuilder = $this->getFromResponse('query_builder');
 
         $totalQueryBuilder = clone $queryBuilder;
+        $total = count(new Paginator($totalQueryBuilder));
 
-        try {
-            $total = $totalQueryBuilder
-                ->select('count(distinct(e))')
-                ->getQuery()
-                ->getSingleScalarResult();
-        } catch (NonUniqueResultException $exception) {
-            throw new BadRequestHttpException();
-        }
 
         $currentPage = $this->request->query->getInt('page', 1);
         $totalPages = ceil($total/$this->maxPerPage);
@@ -52,7 +44,7 @@ class PaginateStep extends AbstractStep
         $queryBuilder->setMaxResults($this->maxPerPage);
 
         return $this->createResponse(['response_data' => [
-            'rows'  => $queryBuilder->getQuery()->getResult(),
+            'rows'  => $queryBuilder->getQuery()->getArrayResult(),
             'total' => $total,
             'current_page' => $currentPage,
             'total_pages' => $totalPages
