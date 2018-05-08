@@ -30,7 +30,7 @@ class PaginateStep extends AbstractStep
         $queryBuilder = $this->getFromResponse('query_builder');
 
         $totalQueryBuilder = clone $queryBuilder;
-        $total = count(new Paginator($totalQueryBuilder));
+        $total = (new Paginator($totalQueryBuilder))->count();
 
 
         $currentPage = $this->request->query->getInt('page', 1);
