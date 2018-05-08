@@ -22,6 +22,7 @@ class FilterStep extends AbstractStep
     {
         /** @var array $filters */
         $filters = $this->getFromResponse('filters');
+//        var_dump($filters);die;
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getFromResponse('query_builder');
         /** @var \ReflectionClass $reflection */
@@ -85,7 +86,7 @@ class FilterStep extends AbstractStep
     public function applyLkFilter($filter, QueryBuilder $queryBuilder)
     {
         $queryBuilder
-            ->andWhere(sprintf('e.%s LIKE %:%s_value%)', $filter['property'], $filter['property']))
+            ->andWhere(sprintf('e.%s LIKE %%:%s_value%%)', $filter['property'], $filter['property']))
             ->setParameter(sprintf('%s_value', $filter['property']), $filter['value']);
     }
 
