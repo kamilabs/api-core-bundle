@@ -25,7 +25,7 @@ class SortStep extends AbstractStep
         $queryBuilder = $this->getFromResponse('query_builder');
         $sort = $this->request->get('sort', $this->request->attributes->get('_sort'));
         $direction = $this->request->get('direction', $this->request->attributes->get('_sort_direction'));
-        if(!in_array($direction, ['asc', 'desc'])) {
+        if (!in_array($direction, ['asc', 'desc'])) {
             throw new BadRequestHttpException();
         }
         /** @var \ReflectionClass $reflection */

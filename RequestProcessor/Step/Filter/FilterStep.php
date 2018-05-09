@@ -30,7 +30,7 @@ class FilterStep extends AbstractStep
 
         foreach ($filters as $filter) {
             $property = $reflection->getProperty($filter['property']);
-            if(!$this->accessManager->canAccessProperty($property)) {
+            if (!$this->accessManager->canAccessProperty($property)) {
                 throw new AccessDeniedHttpException();
             }
             call_user_func([$this, sprintf('apply%sFilter', $filter['type'])], $filter, $queryBuilder);
