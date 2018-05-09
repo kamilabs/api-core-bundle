@@ -197,7 +197,7 @@ class Stenographer
 
         foreach ($reflection->getProperties() as $property) {
             $anonymousAccess = $this->reader->getPropertyAnnotation($property, AnonymousAccess::class);
-            $access = $this->reader->getPropertyAnnotation($property,Access::class);
+            $access = $this->reader->getPropertyAnnotation($property, Access::class);
             if ($anonymousAccess || $access) {
                 $param = ['name' => $property->getName()];
                 $param['access'] = $anonymousAccess ? ['Any'] : [];

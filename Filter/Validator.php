@@ -32,7 +32,7 @@ class Validator
     {
         if ($filter = $request->get('filter')) {
             $filters = json_decode(base64_decode($filter), true);
-            if($filters) {
+            if ($filters) {
                 $this->filters = $filters;
                 $this->validate();
             }
@@ -122,10 +122,10 @@ class Validator
     {
         foreach ($required as $param) {
             if (!array_key_exists($param, $filter)) {
-               throw new BadRequestHttpException(sprintf(
-                   'Filter doesn\'t contain required params. Required params are %s',
-                   implode(', ', $required)
-               ));
+                throw new BadRequestHttpException(sprintf(
+                    'Filter doesn\'t contain required params. Required params are %s',
+                    implode(', ', $required)
+                ));
             }
         }
     }

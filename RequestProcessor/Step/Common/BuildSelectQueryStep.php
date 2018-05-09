@@ -83,8 +83,8 @@ class BuildSelectQueryStep extends AbstractStep
     protected function isRelation(\ReflectionProperty $property)
     {
         return (
-            $this->reader->getPropertyAnnotation($property, Relation::class)  ||
-            $this->reader->getPropertyAnnotation($property, OneToOne::class)  ||
+            $this->reader->getPropertyAnnotation($property, Relation::class) ||
+            $this->reader->getPropertyAnnotation($property, OneToOne::class) ||
             $this->reader->getPropertyAnnotation($property, OneToMany::class) ||
             $this->reader->getPropertyAnnotation($property, ManyToOne::class) ||
             $this->reader->getPropertyAnnotation($property, ManyToMany::class)

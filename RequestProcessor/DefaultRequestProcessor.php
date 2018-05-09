@@ -53,8 +53,8 @@ class DefaultRequestProcessor implements RequestProcessorInterface
         foreach ($step->requiresBefore() as $requiredStep) {
             if (!in_array($requiredStep, $this->executedSteps)) {
                 throw new ProcessingException(sprintf(
-                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n" .
-                    "Required steps for %s are: %s", $step->getName(), implode(',',  $step->requiresBefore())
+                    "Request didn't pass required steps yet. Try to adjust your processing strategy\n".
+                    "Required steps for %s are: %s", $step->getName(), implode(',', $step->requiresBefore())
                 ));
             }
         }
