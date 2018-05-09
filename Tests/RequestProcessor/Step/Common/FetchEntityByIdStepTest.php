@@ -45,7 +45,7 @@ class FetchEntityByIdStepTest extends TestCase
         $step->setPreviousResponse(new ProcessorResponse($request, ['reflection' => new \ReflectionClass(MyModel::class)]));
 
         $this->expectException(NotFoundHttpException::class);
-        $response = $step->execute();
+        $step->execute();
     }
 
     public function testRequiresBefore()

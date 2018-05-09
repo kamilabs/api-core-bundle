@@ -54,35 +54,35 @@ class ApiCoreRoutingLoader extends Loader
 
         $routes = new RouteCollection();
 
-        foreach ($this->resources as $resource) {
+        foreach ($this->resources as $restResource) {
             $routes->add(
-                sprintf('kami.api_core_%s_index', $resource['name']),
-                $this->createIndexRoute($resource)
+                sprintf('kami.api_core_%s_index', $restResource['name']),
+                $this->createIndexRoute($restResource)
             );
             $routes->add(
-                sprintf('kami.api_core_%s_filter', $resource['name']),
-                $this->createFilterRoute($resource)
+                sprintf('kami.api_core_%s_filter', $restResource['name']),
+                $this->createFilterRoute($restResource)
             );
             $routes->add(
-                sprintf('kami.api_core_%s_item', $resource['name']),
-                $this->createItemRoute($resource)
+                sprintf('kami.api_core_%s_item', $restResource['name']),
+                $this->createItemRoute($restResource)
             );
             $routes->add(
-                sprintf('kami.api_core_%s_create', $resource['name']),
-                $this->createNewRoute($resource)
+                sprintf('kami.api_core_%s_create', $restResource['name']),
+                $this->createNewRoute($restResource)
             );
             $routes->add(
-                sprintf('kami.api_core_%s_update', $resource['name']),
-                $this->createUpdateRoute($resource)
+                sprintf('kami.api_core_%s_update', $restResource['name']),
+                $this->createUpdateRoute($restResource)
             );
             $routes->add(
-                sprintf('kami.api_core_%s_delete', $resource['name']),
-                $this->createDeleteRoute($resource)
+                sprintf('kami.api_core_%s_delete', $restResource['name']),
+                $this->createDeleteRoute($restResource)
             );
-            if ($resource['entity'] instanceof UserAwareInterface) {
+            if ($restResource['entity'] instanceof UserAwareInterface) {
                 $routes->add(
-                    sprintf('kami.api_core_%s_my', $resource['name']),
-                    $this->createMyRoute($resource)
+                    sprintf('kami.api_core_%s_my', $restResource['name']),
+                    $this->createMyRoute($restResource)
                 );
             }
         }

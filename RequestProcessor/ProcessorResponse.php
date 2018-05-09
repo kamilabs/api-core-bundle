@@ -85,13 +85,10 @@ class ProcessorResponse implements ResponseInterface
         switch ($format) {
             case 'json':
                 return 'application/json';
-                break;
             case 'xml':
                 return 'application/xml';
-                break;
             default:
                 return 'text/plain';
-                break;
         }
     }
 }

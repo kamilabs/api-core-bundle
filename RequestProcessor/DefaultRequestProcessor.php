@@ -40,12 +40,6 @@ class DefaultRequestProcessor implements RequestProcessorInterface
         $step->setRequest($request);
         $step->setPreviousResponse($response);
         $response = $step->execute();
-
-        if(!$response) {
-            throw new ProcessingException(
-                sprintf('RequestProcessor didn\'t receive any response from %s', get_class($step)));
-        }
-
         $this->executedSteps[] = $step->getName();
 
         return $response;

@@ -41,7 +41,7 @@ class HandleRequestStepTest extends TestCase
         $step->setPreviousResponse(new ProcessorResponse($request, ['form' => $formMock]));
 
         $this->expectException(BadRequestHttpException::class);
-        $response = $step->execute();
+        $step->execute();
     }
     
     public function testRequiresBefore()

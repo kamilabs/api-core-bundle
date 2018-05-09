@@ -64,7 +64,7 @@ class ValidateResourceAccessStepTest extends TestCase
         ]));
 
         $this->expectException(AccessDeniedHttpException::class);
-        $response = $step->execute();
+        $step->execute();
     }
 
 

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\Annotation\Relation;
-use Kami\ApiCoreBundle\Graph\Relation\DoctrineRelation;
 use Kami\ApiCoreBundle\RequestProcessor\ProcessingException;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
