@@ -1,7 +1,0 @@
-kami_api:
-    resource: .
-    type: kami_api_core
-#kami_api_doc:
-#    path: /api/doc
-#    defaults:
-#        _controller: \Kami\ApiCoreBundle\Controller\DocController::docAction

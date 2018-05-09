@@ -3,7 +3,7 @@
 <phpunit bootstrap="./Tests/bootstrap.php" colors="true">
 
     <testsuites>
-        <testsuite name="KamiApiCoreBundle test suite">
+        <testsuite name="KamiApiCoreBundle unit test suite" id="unit">
             <directory suffix="Test.php">./Tests</directory>
         </testsuite>
     </testsuites>

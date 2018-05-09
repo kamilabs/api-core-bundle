@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <imports>
+        <import resource="default_strategies.xml"/>
+        <import resource="steps.xml"/>
+    </imports>
+
+    <services>
+        <service id="kami.api_core.routing_loader" class="Kami\ApiCoreBundle\Routing\ApiCoreRoutingLoader">
+            <argument>%kami.api_core.resources%</argument>
+            <argument>%kami.api_core.locales%</argument>
+            <argument>%kernel.default_locale%</argument>
+            <tag name="routing.loader" />
+        </service>
+
+        <service id="kami.api_core.access_manager" class="Kami\ApiCoreBundle\Security\AccessManager">
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="annotation_reader"/>
+        </service>
+
+        <service id="kami.api_core.request_body_converter" class="Kami\ApiCoreBundle\Listener\RequestBodyConverter">
+            <argument type="service" id="jms_serializer.serializer"/>
+            <tag name="kernel.event_listener" event="kernel.request" priority="255"/>
+        </service>
+
+        <service id="kami.api_core.request_processor.default"
+                 class="Kami\ApiCoreBundle\RequestProcessor\DefaultRequestProcessor" public="true">
+            <argument type="tagged" tag="kami_api_core.strategy_step" />
+        </service>
+        <service id="nelmio_api_doc.route_describers.kami_api_core" class="Kami\ApiCoreBundle\Bridge\NelmioApiDoc\RouteDescriber\KamiApiCoreDescriber" public="false">
+            <argument type="service" id="kami.api_core.stenographer" />
+
+            <tag name="nelmio_api_doc.route_describer" priority="1000" />
+        </service>
+        <service id="kami.api_core.stenographer" class="Kami\ApiCoreBundle\Stenographer\Stenographer">
+            <argument type="service" id="annotation_reader"/>
+        </service>
+    </services>
+</container>

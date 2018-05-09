@@ -36,6 +36,7 @@ class RequestBodyConverter
                         $request->request->set($key, $value);
                     }
                 } catch (\Exception $e) {
+                    return;
                 }
             }
         }

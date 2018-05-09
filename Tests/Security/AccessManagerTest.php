@@ -9,10 +9,10 @@ use Kami\ApiCoreBundle\Annotation\Access;
 use Kami\ApiCoreBundle\Annotation\AnonymousAccess;
 use Kami\ApiCoreBundle\Annotation\AnonymousCreate;
 use Kami\ApiCoreBundle\Annotation\AnonymousDelete;
-use Kami\ApiCoreBundle\Annotation\AnonymousEdit;
+use Kami\ApiCoreBundle\Annotation\AnonymousUpdate;
 use Kami\ApiCoreBundle\Annotation\CanBeCreatedBy;
 use Kami\ApiCoreBundle\Annotation\CanBeDeletedBy;
-use Kami\ApiCoreBundle\Annotation\CanBeEditedBy;
+use Kami\ApiCoreBundle\Annotation\CanBeUpdatedBy;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
@@ -26,8 +26,12 @@ class AccessManagerTest extends WebTestCase
 
     public function testCanBeConstructedWithNecessaryParams()
     {
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER', 'ROLE_ADMIN']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
         $accessManager = new AccessManager(
-            $this->mock(TokenStorage::class), new AnnotationReader()
+            $tokenStorageMock, $this->mock(AnnotationReader::class)
         );
         $this->assertInstanceOf(AccessManager::class, $accessManager);
     }
@@ -42,7 +46,7 @@ class AccessManagerTest extends WebTestCase
 
         $reflection = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new AnonymousAccess()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', [new AnonymousAccess()]);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canAccessResource($reflection));
@@ -50,16 +54,19 @@ class AccessManagerTest extends WebTestCase
     public function testCanAccessResourceWithUserInterfaceCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER', 'ROLE_ADMIN']);
-
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new Access();
         $access->roles = ['ROLE_USER'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canAccessResource($reflection));
@@ -67,38 +74,60 @@ class AccessManagerTest extends WebTestCase
     public function testCanAccessResourceWithUserInterfaceNotCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new Access();
-        $access->roles = ['ROLE_Admin'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflection);
+        $access->roles = ['ROLE_ADMIN'];
+
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canAccessResource($reflection));
     }
     public function testCanAccessResourceWithoutUserInterface()
     {
-        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
-
-        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
+        $token = $this->mock(AnonymousToken::class, 'getUser', null);
+        $tokenStorage = $this->mock(TokenStorage::class, 'getToken', $token);
         $reflection = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new Access()], $reflection);
+        $access = new Access();
+        $access->roles = ['ROLE_ADMIN'];
+        $reader = $this->createMock(AnnotationReader::class);
+        $reader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $reader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
-        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $accessManager = new AccessManager($tokenStorage, $reader);
         $this->assertFalse($accessManager->canAccessResource($reflection));
     }
     public function testCanAccessResourceNotCurrentAccess()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
         $reflection = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeEditedBy()], $reflection);
+
+        $access = new Access();
+        $access->roles = ['ROLE_ADMIN'];
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canAccessResource($reflection));
@@ -109,26 +138,33 @@ class AccessManagerTest extends WebTestCase
 
     public function testCanCreateResourceAnonymous()
     {
-        $tokenMock = $this->mock(TokenStorage::class);
-        $reflection = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [new AnonymousCreate()], $reflection);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
-        $accessManager = new AccessManager($tokenMock, $annReader);
+        $reflection = $this->mock(\ReflectionClass::class);
+        $annReader = $this->mock(Reader::class, 'getClassAnnotation', [new AnonymousCreate()], $reflection);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canCreateResource($reflection));
     }
     public function testCanCreateResourceWithUserInterfaceCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new CanBeCreatedBy();
         $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canCreateResource($reflection));
@@ -136,16 +172,20 @@ class AccessManagerTest extends WebTestCase
     public function testCanCreateResourceWithUserInterfaceNotCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new CanBeCreatedBy();
         $access->roles = ['ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateResource($reflection));
@@ -158,16 +198,27 @@ class AccessManagerTest extends WebTestCase
 
         $reflection = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new Access()], $reflection);
+        $access = new CanBeCreatedBy();
+        $access->roles = ['ROLE_ADMIN'];
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateResource($reflection));
     }
     public function testCanCreateResourceNotCurrentAccess()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
         $reflection = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeEditedBy()], $reflection);
+
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation');
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateResource($reflection));
@@ -177,28 +228,34 @@ class AccessManagerTest extends WebTestCase
 
     public function testCanCreatePropertyAnonymous()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionProperty::class);
 
-        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [new AnonymousCreate()], $reflection);
+        $annReader = $this->mock(Reader::class, 'getPropertyAnnotation', [new AnonymousCreate()]);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canCreateProperty($reflection));
     }
-        public function testCanCreatePropertyWithUserInterfaceCurrentRole()
+    public function testCanCreatePropertyWithUserInterfaceCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
-
         $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionProperty::class);
 
         $access = new CanBeCreatedBy();
         $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
-        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getPropertyAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getPropertyAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canCreateProperty($reflection));
@@ -206,25 +263,33 @@ class AccessManagerTest extends WebTestCase
     public function testCanCreatePropertyWithUserInterfaceNotCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
-
         $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionProperty::class);
 
         $access = new CanBeCreatedBy();
         $access->roles = ['ROLE_USER'];
-        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getPropertyAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getPropertyAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateProperty($reflection));
     }
     public function testCanCreatePropertyNotCurrentAccess()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
+        $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
         $reflection = $this->mock(\ReflectionProperty::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new CanBeEditedBy()], $reflection);
+
+        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotation', null);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateProperty($reflection));
@@ -234,230 +299,259 @@ class AccessManagerTest extends WebTestCase
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
         $reflection = $this->mock(\ReflectionProperty::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new Access()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotation', null);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canCreateProperty($reflection));
     }
 
 
-//  canEditResource
+//  canUpdateResource
 
-    public function testCanEditResourceAnonymous()
+    public function testCanUpdateResourceAnonymous()
     {
-        $tokenMock = $this->mock(TokenStorage::class);
+        $tokenMock = $this->mock(TokenInterface::class, 'getUser', null);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflectionMock = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [new AnonymousEdit()], $reflectionMock);
-
-        $accessManager = new AccessManager($tokenMock, $annReader);
-        $this->assertTrue($accessManager->canEditResource($reflectionMock));
-    }
-    public function testCanEditResourceWithUserInterfaceCurrentRole()
-    {
-        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
-        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
-        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
-        $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
-
-        $access = new CanBeEditedBy();
-        $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflectionPropertyMock);
+        $annReader = $this->mock(Reader::class, 'getClassAnnotation', true);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertTrue($accessManager->canEditResource($reflectionPropertyMock));
+        $this->assertTrue($accessManager->canUpdateResource($reflectionMock));
     }
-    public function testCanEditResourceWithUserInterfaceNotCurrentRole()
+    public function testCanUpdateResourceWithUserInterfaceCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
 
-        $access = new CanBeEditedBy();
+        $access = new CanBeUpdatedBy();
+        $access->roles = ['ROLE_USER'];
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $this->assertTrue($accessManager->canUpdateResource($reflectionPropertyMock));
+    }
+    public function testCanUpdateResourceWithUserInterfaceNotCurrentRole()
+    {
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
+        $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
+
+        $access = new CanBeUpdatedBy();
         $access->roles = ['ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [$access], $reflectionPropertyMock);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditResource($reflectionPropertyMock));
+        $this->assertFalse($accessManager->canUpdateResource($reflectionPropertyMock));
     }
-    public function testCanEditResourceWithoutUserInterface()
+    public function testCanUpdateResourceWithoutUserInterface()
     {
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
         $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new Access()], $reflectionPropertyMock);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', null);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditResource($reflectionPropertyMock));
+        $this->assertFalse($accessManager->canUpdateResource($reflectionPropertyMock));
     }
-    public function testCanEditResourceNotCurrentAccess()
-    {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
-        $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeCreatedBy()], $reflectionPropertyMock);
-
-        $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditResource($reflectionPropertyMock));
-    }
-
-//  canEditProperty
-
-    public function testCanEditPropertyAnonymous()
-    {
-        $tokenMock = $this->mock(TokenStorage::class);
-
-        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
-
-        $annReader = $this->mock(Reader::class, 'getPropertyAnnotations', [new AnonymousEdit()], $reflectionPropertyMock);
-
-        $accessManager = new AccessManager($tokenMock, $annReader);
-        $this->assertTrue($accessManager->canEditProperty($reflectionPropertyMock));
-    }
-    public function testCanEditPropertyWithUserInterfaceCurrentRole()
-    {
-        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
-        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
-        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
-        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
-
-        $access = new CanBeEditedBy();
-        $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [$access], $reflectionPropertyMock);
-
-        $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertTrue($accessManager->canEditProperty($reflectionPropertyMock));
-    }
-    public function testCanEditPropertyWithUserInterfaceNotCurrentRole()
-    {
-        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
-
-        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
-
-        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
-
-        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
-
-        $access = new CanBeEditedBy();
-        $access->roles = ['ROLE_ADMIN'];
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [$access], $reflectionPropertyMock);
-
-        $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditProperty($reflectionPropertyMock));
-    }
-    public function testCanEditPropertyWithoutUserInterface()
+    public function testCanUpdateResourceNotCurrentAccess()
     {
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
+        $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
+
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', null);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $this->assertFalse($accessManager->canUpdateResource($reflectionPropertyMock));
+    }
+
+//  canUpdateProperty
+
+    public function testCanUpdatePropertyAnonymous()
+    {
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new Access()], $reflectionPropertyMock);
+        $annReader = $this->mock(Reader::class, 'getPropertyAnnotation', [new AnonymousUpdate()]);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditProperty($reflectionPropertyMock));
+        $this->assertTrue($accessManager->canUpdateProperty($reflectionPropertyMock));
     }
-    public function testCanEditPropertyNotCurrentAccess()
+    public function testCanUpdatePropertyWithUserInterfaceCurrentRole()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
         $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotations', [new CanBeCreatedBy()], $reflectionPropertyMock);
+
+        $access = new CanBeUpdatedBy();
+        $access->roles = ['ROLE_USER'];
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getPropertyAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getPropertyAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
-        $this->assertFalse($accessManager->canEditProperty($reflectionPropertyMock));
+        $this->assertTrue($accessManager->canUpdateProperty($reflectionPropertyMock));
+    }
+    public function testCanUpdatePropertyWithUserInterfaceNotCurrentRole()
+    {
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
+        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
+
+        $access = new CanBeUpdatedBy();
+        $access->roles = ['ROLE_ADMIN'];
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getPropertyAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getPropertyAnnotation')
+            ->willReturn($access);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $this->assertFalse($accessManager->canUpdateProperty($reflectionPropertyMock));
+    }
+    public function testCanUpdatePropertyWithoutUserInterface()
+    {
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
+
+        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotation', null);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $this->assertFalse($accessManager->canUpdateProperty($reflectionPropertyMock));
+    }
+    public function testCanUpdatePropertyNotCurrentAccess()
+    {
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+        $reflectionPropertyMock = $this->mock(\ReflectionProperty::class);
+
+        $annReader = $this->mock(AnnotationReader::class, 'getPropertyAnnotation', null);
+
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
+        $this->assertFalse($accessManager->canUpdateProperty($reflectionPropertyMock));
     }
 
 // canDeleteResource
 
     public function testCanDeleteResourceAnonymous()
     {
-        $tokenMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_USER']);
+        $tokenMock = $this->mock(AnonymousToken::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new AnonymousDelete()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', new AnonymousDelete());
 
-        $accessManager = new AccessManager($tokenMock, $annReader);
+        $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canDeleteResource($reflection));
     }
+
     public function testCanDeleteResourceWithUserInterfaceCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
-
         $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new CanBeDeletedBy();
-        $access->roles = ['ROLE_USER', 'ROLE_ADMIN'];
-        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [$access], $reflection);
+        $access->roles = ['ROLE_ADMIN'];
+
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertTrue($accessManager->canDeleteResource($reflection));
     }
+
     public function testCanDeleteResourceWithUserInterfaceNotCurrentRole()
     {
         $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
-
         $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
         $access = new CanBeDeletedBy();
         $access->roles = ['ROLE_USER'];
-        $annReader = $this->mock(Reader::class, 'getClassAnnotations', [$access], $reflection);
+        $annReader = $this->createMock(AnnotationReader::class);
+        $annReader->expects($this->at(0))
+            ->method('getClassAnnotation')
+            ->willReturn(null);
+        $annReader->expects($this->at(1))
+            ->method('getClassAnnotation')
+            ->willReturn($access);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canDeleteResource($reflection));
     }
+
     public function testCanDeleteResourceNotCurrentAccess()
     {
-        $tokenStorageMock = $this->mock(TokenStorage::class);
+        $userMock = $this->mock(UserInterface::class, 'getRoles', ['ROLE_ADMIN']);
+        $tokenMock = $this->mock(TokenInterface::class, 'getUser', $userMock);
+        $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
+
         $reflectionPropertyMock = $this->mock(\ReflectionClass::class);
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new CanBeCreatedBy()], $reflectionPropertyMock);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', null);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canDeleteResource($reflectionPropertyMock));
     }
+
     public function testCanDeleteResourceWithoutUserInterface()
     {
         $tokenMock = $this->mock(AnonymousToken::class, 'getUser', null);
-
         $tokenStorageMock = $this->mock(TokenStorage::class, 'getToken', $tokenMock);
 
         $reflection = $this->mock(\ReflectionClass::class);
 
-        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotations', [new Access()], $reflection);
+        $annReader = $this->mock(AnnotationReader::class, 'getClassAnnotation', null);
 
         $accessManager = new AccessManager($tokenStorageMock, $annReader);
         $this->assertFalse($accessManager->canDeleteResource($reflection));
     }
-
-//    public function testCanBeAccessedViaServiceContainer()
-//    {
-//      $client = static::createClient();
-//      $accessManager = $client->getContainer()->get('kami_api_core.access_manager');
-//
-//      $this->assertTrue($accessManager instanceof AccessManager);
-//    }
 
     private function mock($class, $expectedMethod = null, $willReturn = null, $methodParameter = null)
     {

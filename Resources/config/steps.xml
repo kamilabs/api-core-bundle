@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <service id="kami.api_core.step.common.build_select_query"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSelectQueryStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <argument type="service" id="annotations.reader"/>
+            <tag name="kami_api_core.strategy_step" shortcut="build_select_query"/>
+        </service>
+
+        <service id="kami.api_core.step.common.fetch_entity_by_id"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\FetchEntityByIdStep">
+            <argument type="service" id="doctrine"/>
+            <tag name="kami_api_core.strategy_step" shortcut="fetch_entity_by_id"/>
+        </service>
+
+        <service id="kami.api_core.step.common.get_entity_from_reflection"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep">
+            <tag name="kami_api_core.strategy_step" shortcut="get_entity_from_reflection"/>
+        </service>
+
+        <service id="kami.api_core.step.common.get_query_builder"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetQueryBuilderStep">
+            <argument type="service" id="doctrine"/>
+            <tag name="kami_api_core.strategy_step" shortcut="get_query_builder"/>
+        </service>
+
+        <service id="kami.api_core.step.common.get_reflection_from_request"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep">
+            <tag name="kami_api_core.strategy_step" shortcut="get_reflection_from_request"/>
+        </service>
+
+        <service id="kami.api_core.step.common.handle_request"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\HandleRequestStep">
+            <tag name="kami_api_core.strategy_step" shortcut="handle_request"/>
+        </service>
+
+        <service id="kami.api_core.step.common.sort"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\SortStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <tag name="kami_api_core.strategy_step" shortcut="sort"/>
+        </service>
+
+        <service id="kami.api_core.step.common.trim_response"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\TrimResponseStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <tag name="kami_api_core.strategy_step" shortcut="trim_response"/>
+        </service>
+
+        <service id="kami.api_core.step.common.paginate"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\PaginateStep">
+            <argument>%kami.api_core.pagination.per_page%</argument>
+            <tag name="kami_api_core.strategy_step" shortcut="paginate"/>
+        </service>
+
+        <service id="kami.api_core.step.common.persist" class="\Kami\ApiCoreBundle\RequestProcessor\Step\Common\PersistStep">
+            <argument type="service" id="doctrine" />
+            <tag name="kami_api_core.strategy_step" shortcut="persist"/>
+        </service>
+
+        <service id="kami.api_core.step.common.serialize_response_data"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\SerializeResponseDataStep">
+            <argument type="service" id="jms_serializer.serializer"/>
+            <tag name="kami_api_core.strategy_step" shortcut="serialize_response_data"/>
+        </service>
+
+        <service id="kami.api_core.step.common.validate_form"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateFormStep">
+            <tag name="kami_api_core.strategy_step" shortcut="validate_form"/>
+        </service>
+
+        <service id="kami.api_core.step.common.validate_resource_access"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <tag name="kami_api_core.strategy_step" shortcut="validate_resource_access"/>
+        </service>
+
+        <service id="kami.api_core.step.create.build_create_form"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Create\BuildCreateFormStep">
+             <argument type="service" id="form.factory"/>
+             <argument type="service" id="kami.api_core.access_manager"/>
+             <argument type="service" id="annotation_reader"/>
+            <tag name="kami_api_core.strategy_step" shortcut="build_create_form"/>
+        </service>
+
+        <service id="kami.api_core.step.delete.delete"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Delete\DeleteStep">
+            <argument type="service" id="doctrine"/>
+            <tag name="kami_api_core.strategy_step" shortcut="delete"/>
+        </service>
+
+        <service id="kami.api_core.step.filter.filter"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Filter\FilterStep">
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <tag name="kami_api_core.strategy_step" shortcut="filter"/>
+        </service>
+
+        <service id="kami.api_core.step.item.add_where.class"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Item\AddWhereStep">
+            <tag name="kami_api_core.strategy_step" shortcut="item_add_where"/>
+        </service>
+
+        <service id="kami.api_core.item.single.set_selected_data"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Item\SetSelectedDataStep">
+            <tag name="kami_api_core.strategy_step" shortcut="item_set_selected_data"/>
+        </service>
+        <service id="kami.api_core.item.filter.validate_filters"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Filter\ValidateFilters">
+            <tag name="kami_api_core.strategy_step" shortcut="validate_filters"/>
+        </service>
+
+        <service id="kami.api_core.step.update.build_update_form"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Update\BuildUpdateFormStep">
+            <argument type="service" id="form.factory"/>
+            <argument type="service" id="kami.api_core.access_manager"/>
+            <argument type="service" id="annotations.reader"/>
+            <tag name="kami_api_core.strategy_step" shortcut="build_update_form"/>
+        </service>
+    </services>
+
+</container>

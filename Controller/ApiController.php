@@ -7,33 +7,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ApiController extends Controller
 {
-    public function indexAction(Request $request)
+    public function apiAction(Request $request)
     {
-        return $this->get('kami_api_core.api_manager')->getIndex($request);
-    }
+        $strategy = $this->getParameter($request->attributes->get('_strategy'));
+        $requestProcessor = $this->get($request->attributes->get('_request_processor'));
 
-    public function filterAction(Request $request)
-    {
-        return $this->get('kami_api_core.api_manager')->filter($request);
-    }
-
-    public function itemAction(Request $request)
-    {
-        return $this->get('kami_api_core.api_manager')->getSingleResource($request);
-    }
-
-    public function newAction(Request $request)
-    {
-        return $this->get('kami_api_core.api_manager')->createResource($request);
-    }
-
-    public function editAction(Request $request)
-    {
-        return $this->get('kami_api_core.api_manager')->editResource($request);
-    }
-
-    public function deleteAction(Request $request)
-    {
-        return $this->get('kami_api_core.api_manager')->deleteResource($request);
+        return $requestProcessor->executeStrategy($strategy, $request);
     }
 }
