@@ -225,7 +225,10 @@ class Stenographer
                     Inflector::tableize($reflection->getShortName()),
                     $property->getName()
                 )];
-                $param['in'] = $this->reader->getPropertyAnnotation($property, Column::class)->type;
+
+                $column = $this->reader->getPropertyAnnotation($property, Column::class);
+
+                $param['in'] = $column ? $column->type : 'Unknown'; // todo: refactor this, so you can generate proper doc
                 $availableParams[] = $param;
             }
         }
