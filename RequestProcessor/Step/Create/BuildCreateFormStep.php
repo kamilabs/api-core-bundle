@@ -24,8 +24,9 @@ class BuildCreateFormStep extends AbstractBuildFormStep
             if ($this->accessManager->canCreateProperty($property)) {
                 if ($annotation = $this->reader->getPropertyAnnotation($property, Form::class)) {
                     $builder->add($property->getName(), $annotation->type, $annotation->options);
+                } else {
+                    $builder->add($property->getName());
                 }
-                $builder->add($property->getName());
             }
         }
 
