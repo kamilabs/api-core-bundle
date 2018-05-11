@@ -95,7 +95,7 @@ class BuildSelectQueryStep extends AbstractStep
     {
         $target = $this->getTarget($property);
         $alias = Inflector::tableize($property->getName());
-        $queryBuilder->join(sprintf('e.%s', $property->getName()), $alias);
+        $queryBuilder->leftJoin(sprintf('e.%s', $property->getName()), $alias);
         $accessible = [];
 
         foreach ($target->getProperties() as $property) {
