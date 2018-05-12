@@ -25,6 +25,7 @@ class KamiApiCoreExtension extends Extension
 
         $container->setParameter('kami.api_core.resources', $config['resources']);
         $container->setParameter('kami.api_core.locales', $config['locales']);
+        $container->setParameter('kami.api_core.pagination.max_per_page', $config['pagination']['max_per_page']);
         $container->setParameter('kami.api_core.pagination.per_page', $config['pagination']['per_page']);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
