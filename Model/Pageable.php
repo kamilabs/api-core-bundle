@@ -23,7 +23,7 @@ class Pageable
     }
 
     /**
-     * @return mixed
+     * @return iterable
      */
     public function getContent()
     {
@@ -31,9 +31,9 @@ class Pageable
     }
 
     /**
-     * @param mixed $content
+     * @param iterable $content
      */
-    public function setContent($content)
+    public function setContent(\iterable $content)
     {
         $this->content = $content;
     }

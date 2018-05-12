@@ -68,6 +68,10 @@ class Configuration implements ConfigurationInterface
                         ->isRequired()
                         ->defaultValue(10)
                     ->end()
+                    ->integerNode('max_per_page')
+                        ->isRequired()
+                        ->defaultValue(100)
+                    ->end()
                 ->end()
             ->end()
         ->end();
