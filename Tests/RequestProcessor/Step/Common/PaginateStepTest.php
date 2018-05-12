@@ -58,7 +58,7 @@ class PaginateStepTest extends TestCase
 //    
     public function testRequiresBefore()
     {
-        $step = new PaginateStep(10);
+        $step = new PaginateStep(10, 100);
         $this->assertEquals([BuildSelectQueryStep::class], $step->requiresBefore());
     }
 }

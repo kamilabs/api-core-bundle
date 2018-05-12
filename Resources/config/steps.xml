@@ -54,6 +54,7 @@
         <service id="kami.api_core.step.common.paginate"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\PaginateStep">
             <argument>%kami.api_core.pagination.per_page%</argument>
+            <argument>%kami.api_core.pagination.max_per_page%</argument>
             <tag name="kami_api_core.strategy_step" shortcut="paginate"/>
         </service>
 

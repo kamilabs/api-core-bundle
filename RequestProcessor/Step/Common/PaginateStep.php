@@ -5,7 +5,10 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Kami\ApiCoreBundle\Model\Pageable;
+use Kami\ApiCoreBundle\Model\PageRequest;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -16,22 +19,31 @@ class PaginateStep extends AbstractStep
 {
     protected $maxPerPage;
 
+    protected $perPage;
+
     /**
+     * @param int $perPage
      * @param int $maxPerPage
      */
-    public function __construct($maxPerPage)
+    public function __construct($perPage, $maxPerPage)
     {
+        $this->perPage = $perPage;
         $this->maxPerPage = $maxPerPage;
     }
 
     public function execute()
     {
+        $perPage = $this->request->query->getInt('per_page', $this->perPage);
+
+        if ($perPage > $this->maxPerPage) {
+            throw new BadRequestHttpException('Max per page parameter is greater than allowed');
+        }
+
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getFromResponse('query_builder');
 
         $totalQueryBuilder = clone $queryBuilder;
         $total = (new Paginator($totalQueryBuilder))->count();
-
 
         $currentPage = $this->request->query->getInt('page', 1);
         $totalPages = ceil($total/$this->maxPerPage);
@@ -40,14 +52,15 @@ class PaginateStep extends AbstractStep
             throw new NotFoundHttpException();
         }
 
-        $queryBuilder->setFirstResult($this->maxPerPage*($currentPage - 1));
+        $queryBuilder->setFirstResult($perPage*($currentPage - 1));
         $queryBuilder->setMaxResults($this->maxPerPage);
 
         return $this->createResponse(['response_data' => [
-            'rows'  => $queryBuilder->getQuery()->getArrayResult(),
-            'total' => $total,
-            'current_page' => $currentPage,
-            'total_pages' => $totalPages
+            new Pageable(
+                $queryBuilder->getQuery()->getArrayResult(),
+                $total,
+                new PageRequest($currentPage, $totalPages)
+            )
         ]]);
     }
 
