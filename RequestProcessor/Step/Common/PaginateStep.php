@@ -3,6 +3,7 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Kami\ApiCoreBundle\Model\Pageable;
@@ -31,6 +32,7 @@ class PaginateStep extends AbstractStep
         $this->maxPerPage = $maxPerPage;
     }
 
+    //todo: this is not working correctly
     public function execute()
     {
         $perPage = $this->request->query->getInt('per_page', $this->perPage);
@@ -44,12 +46,10 @@ class PaginateStep extends AbstractStep
         $currentPage = $this->request->query->getInt('page', 1);
 
         $queryBuilder->setFirstResult($perPage*($currentPage - 1));
-        $queryBuilder->setMaxResults($this->perPage);
+        $queryBuilder->setMaxResults($perPage);
+        $paginator = new Paginator($queryBuilder);
 
-        $total = (new Paginator($queryBuilder))->count();
-
-        $totalPages = ceil($total/$this->perPage);
-
+        $totalPages = ceil($paginator->count()/$perPage);
         if ($currentPage < 1 || $currentPage > $totalPages) {
             throw new NotFoundHttpException();
         }
@@ -58,7 +58,7 @@ class PaginateStep extends AbstractStep
         return $this->createResponse(['response_data' =>
             new Pageable(
                 $queryBuilder->getQuery()->getArrayResult(),
-                $total,
+                $paginator->count(),
                 new PageRequest($currentPage, $totalPages)
             )
         ]);
