@@ -33,7 +33,7 @@ class Pageable
     /**
      * @param iterable $content
      */
-    public function setContent(\iterable $content)
+    public function setContent($content)
     {
         $this->content = $content;
     }
