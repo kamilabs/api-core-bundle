@@ -52,6 +52,7 @@ class BuildSelectQueryStep extends AbstractStep
             $this->addSelectIfEligible($property, $queryBuilder);
         }
         $queryBuilder->addSelect(sprintf('partial e.{id, %s}', implode(', ', $this->accessible)));
+        $queryBuilder->groupBy('e.id');
 
         return $this->createResponse(['query_builder' => $queryBuilder]);
     }
