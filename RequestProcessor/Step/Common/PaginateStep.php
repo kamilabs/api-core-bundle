@@ -55,13 +55,13 @@ class PaginateStep extends AbstractStep
         $queryBuilder->setFirstResult($perPage*($currentPage - 1));
         $queryBuilder->setMaxResults($this->maxPerPage);
 
-        return $this->createResponse(['response_data' => [
+        return $this->createResponse(['response_data' =>
             new Pageable(
                 $queryBuilder->getQuery()->getArrayResult(),
                 $total,
                 new PageRequest($currentPage, $totalPages)
             )
-        ]]);
+        ]);
     }
 
     public function requiresBefore()
