@@ -41,19 +41,19 @@ class PaginateStep extends AbstractStep
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getFromResponse('query_builder');
-
-        $totalQueryBuilder = clone $queryBuilder;
-        $total = (new Paginator($totalQueryBuilder))->count();
-
         $currentPage = $this->request->query->getInt('page', 1);
-        $totalPages = ceil($total/$this->maxPerPage);
+
+        $queryBuilder->setFirstResult($perPage*($currentPage - 1));
+        $queryBuilder->setMaxResults($this->perPage);
+
+        $total = (new Paginator($queryBuilder))->count();
+
+        $totalPages = ceil($total/$this->perPage);
 
         if ($currentPage < 1 || $currentPage > $totalPages) {
             throw new NotFoundHttpException();
         }
 
-        $queryBuilder->setFirstResult($perPage*($currentPage - 1));
-        $queryBuilder->setMaxResults($this->perPage);
 
         return $this->createResponse(['response_data' =>
             new Pageable(
