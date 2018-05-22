@@ -62,11 +62,14 @@
             <argument type="service" id="doctrine" />
             <tag name="kami_api_core.strategy_step" shortcut="persist"/>
         </service>
-
+        <service id="kami.api_core.step.common.build_serializer" class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSerializerStep">
+            <argument type="service" id="kami.api_core.access_manager" />
+            <argument type="service" id="jms_serializer.serializer" />
+            <tag name="kami_api_core.strategy_step" shortcut="build_serializer"/>
+        </service>
         <service id="kami.api_core.step.common.serialize_response_data"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\SerializeResponseDataStep">
-            <argument type="service" id="jms_serializer.serializer"/>
-            <tag name="kami_api_core.strategy_step" shortcut="serialize_response_data"/>
+            <tag name="kami_api_core.strategy_step" shortcut="serialize"/>
         </service>
 
         <service id="kami.api_core.step.common.validate_form"

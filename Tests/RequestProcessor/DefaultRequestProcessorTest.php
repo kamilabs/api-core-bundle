@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\Serializer;
 use Kami\ApiCoreBundle\RequestProcessor\DefaultRequestProcessor;
+use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
+use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSelectQueryStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetQueryBuilderStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
@@ -27,46 +29,20 @@ class DefaultRequestProcessorTest extends TestCase
 
     public function testExecuteStrategy()
     {
-        $accessManagerMock = $this->createMock(AccessManager::class);
-        $accessManagerMock->expects($this->any())->method('canAccessResource')->willReturn(true);
-        $accessManagerMock->expects($this->any())->method('canAccessProperty')->willReturn(true);
-        $registryMock = $this->createMock(Registry::class);
-        $queryBuilderMock = $this->createMock(QueryBuilder::class);
-        $entityManagerMock = $this->createMock(EntityManager::class);
-        $registryMock->expects($this->any())->method('getManager')->willReturn($entityManagerMock);
-        $entityManagerMock->expects($this->any())->method('createQueryBuilder')->willReturn($queryBuilderMock);
-        $annotationReaderMock = $this->createMock(Reader::class);
-        $serializerMock = $this->createMock(Serializer::class);
-
-        $availableSteps = [
-            'get_reflection_from_request' => new GetReflectionFromRequestStep(),
-            'validate_resource_access' => new ValidateResourceAccessStep($accessManagerMock),
-            'get_query_builder' => new GetQueryBuilderStep($registryMock),
-            'build_select_query' => new BuildSelectQueryStep($accessManagerMock, $annotationReaderMock),
-            'sort' => new SortStep($accessManagerMock),
-            'paginate' => new SortStep($accessManagerMock),
-            'serialize_response_data' =>new SerializeResponseDataStep($serializerMock)
-        ];
-        $strategy = [
-            'get_reflection_from_request',
-            'validate_resource_access',
-            'get_query_builder',
-            'build_select_query',
-            'sort',
-            'paginate',
-            'serialize_response_data'
-        ];
-
-        $request = new Request();
-        $request->attributes->set('_entity', Entity::class);
-        $request->attributes->set('_sort_direction', 'asc');
-        $request->attributes->set('sort', 'id');
+        $step = $this->createMock(StepInterface::class);
+        $step->expects($this->any())
+            ->method('execute')
+            ->willReturn(new ProcessorResponse(new Request(), ['response_data' => 123], true));
+        $step->expects($this->any())
+            ->method('requiresBefore')
+            ->willReturn([]);
 
         $defaultRequestProcessor = new DefaultRequestProcessor();
-        foreach ($availableSteps as $index => $availableStep) {
-            $defaultRequestProcessor->addStep($index, $availableStep);
-        }
+        $defaultRequestProcessor->addStep('test_step', $step);
 
-        $this->assertInstanceOf(Response::class, $defaultRequestProcessor->executeStrategy($strategy, $request));
+        $this->assertInstanceOf(
+            Response::class,
+            $defaultRequestProcessor->executeStrategy(['test_step'], new Request())
+        );
     }
 }
