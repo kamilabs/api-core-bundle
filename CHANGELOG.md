@@ -1,4 +1,10 @@
 # CHANGE LOG
+## v0.2.1
+_28th, May 2018_
+
+* Refactored `BuildSelectQueryStep`
+* Moved exclusion logic to serialization
+* Added pagerfanta  
 
 ## v0.2.0
 _30th, April 2018_
