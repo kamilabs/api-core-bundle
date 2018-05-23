@@ -29,20 +29,32 @@ class DefaultRequestProcessorTest extends TestCase
 
     public function testExecuteStrategy()
     {
-        $step = $this->createMock(StepInterface::class);
-        $step->expects($this->any())
+        $step1 = $this->createMock(StepInterface::class);
+        $step1->expects($this->any())
             ->method('execute')
-            ->willReturn(new ProcessorResponse(new Request(), ['response_data' => 123], true));
-        $step->expects($this->any())
+            ->willReturn(new ProcessorResponse(new Request(), ['step_1' => true]));
+        $step1->expects($this->any())
             ->method('requiresBefore')
             ->willReturn([]);
+        $step1->expects($this->any())
+            ->method('getName')
+            ->willReturn(StepInterface::class);
+
+        $step2 = $this->createMock(StepInterface::class);
+        $step2->expects($this->any())
+            ->method('execute')
+            ->willReturn(new ProcessorResponse(new Request(), ['response_data' => 123], true));
+        $step2->expects($this->any())
+            ->method('requiresBefore')
+            ->willReturn([StepInterface::class]);
 
         $defaultRequestProcessor = new DefaultRequestProcessor();
-        $defaultRequestProcessor->addStep('test_step', $step);
+        $defaultRequestProcessor->addStep('test_step_1', $step1);
+        $defaultRequestProcessor->addStep('test_step_2', $step2);
 
         $this->assertInstanceOf(
             Response::class,
-            $defaultRequestProcessor->executeStrategy(['test_step'], new Request())
+            $defaultRequestProcessor->executeStrategy(['test_step_1', 'test_step_2'], new Request())
         );
     }
 }
