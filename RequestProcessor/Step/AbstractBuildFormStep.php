@@ -5,6 +5,7 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
+use Kami\ApiCoreBundle\Annotation\Form;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -42,6 +43,14 @@ abstract class AbstractBuildFormStep extends AbstractStep
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'generic_build_form_step';
+    }
+
+    /**
      * @return FormBuilderInterface
      */
     protected function getBaseFormBuilder()
@@ -61,10 +70,15 @@ abstract class AbstractBuildFormStep extends AbstractStep
     }
 
     /**
-     * @return string
+     * @param \ReflectionProperty $property
+     * @param FormBuilderInterface $builder
      */
-    public function getName()
+    protected function addField(\ReflectionProperty $property, FormBuilderInterface $builder)
     {
-        return 'generic_build_form_step';
+        if ($annotation = $this->reader->getPropertyAnnotation($property, Form::class)) {
+            $builder->add(Inflector::tableize($property->getName()), $annotation->type, $annotation->options);
+        } else {
+            $builder->add(Inflector::tableize($property->getName()));
+        }
     }
 }
