@@ -45,12 +45,6 @@
             <tag name="kami_api_core.strategy_step" shortcut="sort"/>
         </service>
 
-        <service id="kami.api_core.step.common.trim_response"
-                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\TrimResponseStep">
-            <argument type="service" id="kami.api_core.access_manager"/>
-            <tag name="kami_api_core.strategy_step" shortcut="trim_response"/>
-        </service>
-
         <service id="kami.api_core.step.common.paginate"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Common\PaginateStep">
             <argument>%kami.api_core.pagination.per_page%</argument>

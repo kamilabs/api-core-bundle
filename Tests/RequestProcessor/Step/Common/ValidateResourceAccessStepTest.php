@@ -5,7 +5,6 @@ namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 use JMS\Serializer\Serializer;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\PersistStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\TrimResponseStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateFormStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
 use Kami\ApiCoreBundle\Security\AccessManager;

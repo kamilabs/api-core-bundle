@@ -37,7 +37,7 @@ class BuildSerializerStep extends AbstractStep
 
     public function requiresBefore()
     {
-        return [GetReflectionFromRequestStep::class];
+        return [];
     }
 
 }

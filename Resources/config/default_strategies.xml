@@ -32,7 +32,6 @@
             <parameter>handle_request</parameter>
             <parameter>validate_form</parameter>
             <parameter>persist</parameter>
-            <parameter>trim_response</parameter>
             <parameter>build_serializer</parameter>
             <parameter>serialize</parameter>
         </parameter>
@@ -44,7 +43,6 @@
             <parameter>handle_request</parameter>
             <parameter>validate_form</parameter>
             <parameter>persist</parameter>
-            <parameter>trim_response</parameter>
             <parameter>build_serializer</parameter>
             <parameter>serialize</parameter>
         </parameter>
