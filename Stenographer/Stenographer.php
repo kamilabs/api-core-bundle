@@ -194,12 +194,6 @@ class Stenographer
         ]));
     }
 
-    protected function cleanDirtyPaths()
-    {
-
-    }
-
-
     protected function getAvailableFilterParams($entity)
     {
         $reflection = $this->getEntityReflection($entity);
