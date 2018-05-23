@@ -129,7 +129,7 @@ class AccessManager
             return true;
         }
 
-        if ($annotation = $this->reader->getClassAnnotation($reflection, AnonymousDelete::class)) {
+        if ($annotation = $this->reader->getClassAnnotation($reflection, CanBeDeletedBy::class)) {
             return $this->hasRoleWithAccess($annotation);
         }
 
