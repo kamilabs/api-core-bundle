@@ -20,19 +20,13 @@ class BuildSelectQueryStep extends AbstractStep
     /**
      * @var AccessManager
      */
-    private $accessManager;
+    protected $accessManager;
 
     /**
      * @var Reader
      */
-    private $reader;
+    protected $reader;
 
-    /**
-     * @var array
-     */
-    protected $aliases = [];
-
-    private $accessible = [];
 
     public function __construct(AccessManager $accessManager, Reader $reader)
     {

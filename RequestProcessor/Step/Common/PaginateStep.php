@@ -54,7 +54,7 @@ class PaginateStep extends AbstractStep
         }
         return $this->createResponse(['response_data' =>
             new Pageable(
-                $paginator->getIterator()->getArrayCopy(),
+                iterator_to_array($paginator->getIterator()),
                 $paginator->getNbResults(),
                 new PageRequest($currentPage, $paginator->getNbPages())
             )
