@@ -23,6 +23,6 @@ class SerializeResponseDataStep extends AbstractStep
 
     public function requiresBefore()
     {
-        return [ BuildSerializerStep::class ];
+        return [BuildSerializerStep::class];
     }
 }
