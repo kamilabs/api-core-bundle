@@ -34,7 +34,7 @@
         <service id="nelmio_api_doc.route_describers.kami_api_core" class="Kami\ApiCoreBundle\Bridge\NelmioApiDoc\RouteDescriber\KamiApiCoreDescriber" public="false">
             <argument type="service" id="kami.api_core.stenographer" />
 
-            <tag name="nelmio_api_doc.route_describer" priority="1000" />
+            <tag name="nelmio_api_doc.route_describer" priority="-3000" />
         </service>
         <service id="kami.api_core.stenographer" class="Kami\ApiCoreBundle\Stenographer\Stenographer">
             <argument type="service" id="annotation_reader"/>

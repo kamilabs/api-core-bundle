@@ -42,6 +42,11 @@ class Stenographer
     public function getStenography(Swagger $api, Route $route)
     {
         $paths = $api->getPaths();
+
+        foreach (['get', 'post', 'put', 'delete'] as $operation) {
+            $paths->get($route->getPath())->removeOperation($operation);
+        }
+
         $paths->set(sprintf('/api/%s', $route->getDefault('_resource_name')), new Path([
             'get' => [
                 'summary' => sprintf('Get %s index', $route->getDefault('_resource_name')),
@@ -187,6 +192,11 @@ class Stenographer
                 'tags' => [$route->getDefault('_resource_name')]
             ],
         ]));
+    }
+
+    protected function cleanDirtyPaths()
+    {
+
     }
 
 
