@@ -20,19 +20,13 @@ class BuildSelectQueryStep extends AbstractStep
     /**
      * @var AccessManager
      */
-    private $accessManager;
+    protected $accessManager;
 
     /**
      * @var Reader
      */
-    private $reader;
+    protected $reader;
 
-    /**
-     * @var array
-     */
-    protected $aliases = [];
-
-    private $accessible = [];
 
     public function __construct(AccessManager $accessManager, Reader $reader)
     {
@@ -47,11 +41,11 @@ class BuildSelectQueryStep extends AbstractStep
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getFromResponse('query_builder');
         $queryBuilder->from($reflection->getName(), 'e');
+        $queryBuilder->addSelect('e');
 
         foreach ($reflection->getProperties() as $property) {
-            $this->addSelectIfEligible($property, $queryBuilder);
+            $this->addJoinIfRelation($property, $queryBuilder);
         }
-        $queryBuilder->addSelect(sprintf('partial e.{id, %s}', implode(', ', $this->accessible)));
 
         return $this->createResponse(['query_builder' => $queryBuilder]);
     }
@@ -68,67 +62,18 @@ class BuildSelectQueryStep extends AbstractStep
      * @param $property
      * @param $queryBuilder
      */
-    protected function addSelectIfEligible(\ReflectionProperty $property, QueryBuilder $queryBuilder)
+    protected function addJoinIfRelation(\ReflectionProperty $property, QueryBuilder $queryBuilder)
     {
-        if ($this->accessManager->canAccessProperty($property)) {
-            if (!$this->isRelation($property)) {
-                $this->accessible[] = $property->getName();
-                return;
-            }
-            $this->join($property, $queryBuilder);
+        if ($this->isRelation($property) && $this->accessManager->canAccessProperty($property)) {
+            $alias = Inflector::tableize($property->getName());
+            $queryBuilder->leftJoin(sprintf('e.%s', $property->getName()), $alias);
+            $queryBuilder->addSelect($alias);
         }
 
     }
 
     protected function isRelation(\ReflectionProperty $property)
     {
-        return (
-            $this->reader->getPropertyAnnotation($property, Relation::class) ||
-            $this->reader->getPropertyAnnotation($property, OneToOne::class) ||
-            $this->reader->getPropertyAnnotation($property, OneToMany::class) ||
-            $this->reader->getPropertyAnnotation($property, ManyToOne::class) ||
-            $this->reader->getPropertyAnnotation($property, ManyToMany::class)
-        );
-    }
-
-    protected function join(\ReflectionProperty $property, QueryBuilder $queryBuilder)
-    {
-        $target = $this->getTarget($property);
-        $alias = Inflector::tableize($property->getName());
-        $queryBuilder->leftJoin(sprintf('e.%s', $property->getName()), $alias);
-        $accessible = [];
-
-        foreach ($target->getProperties() as $property) {
-            if ($this->accessManager->canAccessProperty($property)) {
-                $accessible[] = $property->getName();
-            }
-        }
-
-        $queryBuilder->addSelect(sprintf('partial %s.{%s}', $alias, implode(',', $accessible)));
-    }
-
-    protected function getTarget(\ReflectionProperty $property)
-    {
-        $target = '';
-
-        $relation = $this->reader->getPropertyAnnotation($property, Relation::class);
-        if ($relation->target) {
-            $target = $relation->target;
-        } else {
-            foreach ([OneToOne::class, OneToMany::class, ManyToOne::class, ManyToMany::class] as $possibility) {
-                if ($annotation = $this->reader->getPropertyAnnotation($property, $possibility)) {
-                    $target = $annotation->targetEntity;
-                    break;
-                }
-            }
-        }
-
-        try {
-            return new \ReflectionClass($target);
-        } catch (\ReflectionException $e) {
-            throw new ProcessingException(sprintf(
-                'Could not find target entity for relation %s', $property->getName())
-            );
-        }
+        return !empty($this->reader->getPropertyAnnotation($property, Relation::class));
     }
 }

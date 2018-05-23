@@ -9,6 +9,8 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Kami\ApiCoreBundle\Model\Pageable;
 use Kami\ApiCoreBundle\Model\PageRequest;
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -32,7 +34,6 @@ class PaginateStep extends AbstractStep
         $this->maxPerPage = $maxPerPage;
     }
 
-    //todo: this is not working correctly
     public function execute()
     {
         $perPage = $this->request->query->getInt('per_page', $this->perPage);
@@ -44,22 +45,18 @@ class PaginateStep extends AbstractStep
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getFromResponse('query_builder');
         $currentPage = $this->request->query->getInt('page', 1);
+        $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder));
+        $paginator->setMaxPerPage($perPage);
+        $paginator->setCurrentPage($currentPage);
 
-        $queryBuilder->setFirstResult($perPage*($currentPage - 1));
-        $queryBuilder->setMaxResults($perPage);
-        $paginator = new Paginator($queryBuilder);
-
-        $totalPages = ceil($paginator->count()/$perPage);
-        if ($currentPage < 1 || $currentPage > $totalPages) {
+        if ($currentPage < 1 || $currentPage > $paginator->getNbPages()) {
             throw new NotFoundHttpException();
         }
-
-
         return $this->createResponse(['response_data' =>
             new Pageable(
-                $queryBuilder->getQuery()->getArrayResult(),
-                $paginator->count(),
-                new PageRequest($currentPage, $totalPages)
+                iterator_to_array($paginator->getIterator()),
+                $paginator->getNbResults(),
+                new PageRequest($currentPage, $paginator->getNbPages())
             )
         ]);
     }

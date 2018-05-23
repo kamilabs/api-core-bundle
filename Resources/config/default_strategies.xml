@@ -11,7 +11,8 @@
             <parameter>build_select_query</parameter>
             <parameter>sort</parameter>
             <parameter>paginate</parameter>
-            <parameter>serialize_response_data</parameter>
+            <parameter>build_serializer</parameter>
+            <parameter>serialize</parameter>
         </parameter>
         <parameter key="kami.api_core.strategy.default.item" type="collection">
             <parameter>get_reflection_from_request</parameter>
@@ -20,7 +21,8 @@
             <parameter>build_select_query</parameter>
             <parameter>item_add_where</parameter>
             <parameter>item_set_selected_data</parameter>
-            <parameter>serialize_response_data</parameter>
+            <parameter>build_serializer</parameter>
+            <parameter>serialize</parameter>>
         </parameter>
         <parameter key="kami.api_core.strategy.default.create" type="collection">
             <parameter>get_reflection_from_request</parameter>
@@ -31,7 +33,8 @@
             <parameter>validate_form</parameter>
             <parameter>persist</parameter>
             <parameter>trim_response</parameter>
-            <parameter>serialize_response_data</parameter>
+            <parameter>build_serializer</parameter>
+            <parameter>serialize</parameter>
         </parameter>
         <parameter key="kami.api_core.strategy.default.update" type="collection">
             <parameter>get_reflection_from_request</parameter>
@@ -42,7 +45,8 @@
             <parameter>validate_form</parameter>
             <parameter>persist</parameter>
             <parameter>trim_response</parameter>
-            <parameter>serialize_response_data</parameter>
+            <parameter>build_serializer</parameter>
+            <parameter>serialize</parameter>
         </parameter>
         <parameter key="kami.api_core.strategy.default.delete" type="collection">
             <parameter>get_reflection_from_request</parameter>
@@ -59,7 +63,8 @@
             <parameter>filter</parameter>
             <parameter>sort</parameter>
             <parameter>paginate</parameter>
-            <parameter>serialize_response_data</parameter>
+            <parameter>build_serializer</parameter>
+            <parameter>serialize</parameter>
         </parameter>
     </parameters>
 </container>

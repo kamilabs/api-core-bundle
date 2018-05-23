@@ -8,19 +8,11 @@ use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 
 class SerializeResponseDataStep extends AbstractStep
 {
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    public function __construct(Serializer $serializer)
-    {
-        $this->serializer = $serializer;
-    }
-
     public function execute()
     {
-        $serialized = $this->serializer->serialize(
+        $serializer = $this->getFromResponse('serializer');
+
+        $serialized = $serializer->serialize(
             $this->getFromResponse('response_data'),
             $this->request->attributes->get('_format')
         );
@@ -31,6 +23,6 @@ class SerializeResponseDataStep extends AbstractStep
 
     public function requiresBefore()
     {
-        return [];
+        return [BuildSerializerStep::class];
     }
 }
