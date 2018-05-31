@@ -4,19 +4,18 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Create;
 
 
 use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractBuildFormStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
-
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class BuildCreateFormStep extends AbstractBuildFormStep
 {
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $builder = $this->getBaseFormBuilder();
+        $builder = $this->getBaseFormBuilder($request->getMethod());
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
+        $reflection = $this->getArtifact('reflection');
 
         foreach ($reflection->getProperties() as $property) {
             if ($this->accessManager->canCreateProperty($property)) {
@@ -24,16 +23,14 @@ class BuildCreateFormStep extends AbstractBuildFormStep
             }
         }
 
-        return $this->createResponse(['form' => $builder->getForm()]);
+        return new ArtifactCollection([
+            new Artifact('form', $builder->getForm())
+        ]);
     }
 
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [
-            ValidateResourceAccessStep::class,
-            GetEntityFromReflectionStep::class,
-            GetReflectionFromRequestStep::class
-        ];
+        return ['reflection', 'access_granted', 'entity'];
     }
 }

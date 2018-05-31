@@ -4,9 +4,10 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Filter;
 
 
 use Doctrine\ORM\QueryBuilder;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSelectQueryStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class FilterStep extends AbstractStep
@@ -18,15 +19,15 @@ class FilterStep extends AbstractStep
         $this->accessManager = $accessManager;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var array $filters */
-        $filters = $this->getFromResponse('filters');
+        $filters = $this->getArtifact('filters');
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getFromResponse('query_builder');
+        $queryBuilder = $this->getArtifact('query_builder');
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
+        $reflection = $this->getArtifact('reflection');
 
         foreach ($filters as $filter) {
             $property = $reflection->getProperty($filter['property']);
@@ -36,7 +37,7 @@ class FilterStep extends AbstractStep
             call_user_func([$this, sprintf('apply%sFilter', $filter['type'])], $filter, $queryBuilder);
         }
 
-        return $this->createResponse(['query_builder' => $queryBuilder]);
+        return new ArtifactCollection();
     }
 
     public function applyEqFilter($filter, QueryBuilder $queryBuilder)
@@ -90,8 +91,8 @@ class FilterStep extends AbstractStep
             ->setParameter(sprintf('%s_value', $filter['property']), '%'.$filter['value'].'%');
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [BuildSelectQueryStep::class, ValidateFilters::class];
+        return ['filters', 'query_builder', 'access_granted', 'reflection', 'select_query_built'];
     }
 }

@@ -35,12 +35,14 @@ class BuildSerializerStep extends AbstractStep
         $this->serializer
             ->setSerializationContextFactory(new ApiContextFactory($this->accessManager));
 
-        return new ArtifactCollection([new Artifact('serializer', $this->serializer)]);
+        return new ArtifactCollection([
+            new Artifact('serializer', $this->serializer)
+        ]);
     }
 
     public function getRequiredArtifacts() : array
     {
-        return [];
+        return ['access_granted'];
     }
 
 }

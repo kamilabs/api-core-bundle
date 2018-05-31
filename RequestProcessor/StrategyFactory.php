@@ -28,7 +28,8 @@ class StrategyFactory
      */
     public function create(array $steps)
     {
-        return new class($this->getStepObjects($steps)) extends AbstractStrategy {};
+        $stepObjects = $this->getStepObjects($steps);
+        return new class($stepObjects) extends AbstractStrategy {};
     }
 
     public function addStep(string $shortcut, StepInterface $step) : void

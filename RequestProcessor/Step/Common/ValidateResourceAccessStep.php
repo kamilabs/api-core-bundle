@@ -4,6 +4,7 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\Artifact;
 use Kami\Component\RequestProcessor\ArtifactCollection;
 use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +47,9 @@ class ValidateResourceAccessStep extends AbstractStep
             throw new AccessDeniedHttpException();
         }
 
-        return new ArtifactCollection();
+        return new ArtifactCollection([
+            new Artifact('access_granted', true)
+        ]);
     }
 
     public function getRequiredArtifacts(): array

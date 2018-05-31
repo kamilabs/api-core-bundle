@@ -19,8 +19,7 @@ class SerializeResponseDataStep extends AbstractStep
         );
 
         return new ArtifactCollection([
-            new Artifact('data', $serialized),
-            new Artifact('status', 200)
+            new Artifact('data', $serialized)
         ]);
 
 
@@ -28,6 +27,6 @@ class SerializeResponseDataStep extends AbstractStep
 
     public function getRequiredArtifacts() : array
     {
-        return ['serializer', 'response_data'];
+        return ['serializer', 'response_data', 'access_granted'];
     }
 }

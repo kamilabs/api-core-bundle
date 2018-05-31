@@ -68,7 +68,7 @@ class PaginateStep extends AbstractStep
 
     public function getRequiredArtifacts() : array
     {
-        return ['query_builder'];
+        return ['query_builder', 'select_query_built', 'access_granted'];
     }
 
 }

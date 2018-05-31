@@ -23,11 +23,12 @@ class GetQueryBuilderStep extends AbstractStep
     public function execute(Request $request) : ArtifactCollection
     {
         return new ArtifactCollection([
-            new Artifact('query_builder', $this->doctrine->getManager()->createQueryBuilder())]);
+            new Artifact('query_builder', $this->doctrine->getManager()->createQueryBuilder())
+        ]);
     }
 
     public function getRequiredArtifacts() : array
     {
-        return [];
+        return ['access_granted'];
     }
 }

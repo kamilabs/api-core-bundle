@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
 use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\Annotation\Relation;
+use Kami\Component\RequestProcessor\Artifact;
 use Kami\Component\RequestProcessor\ArtifactCollection;
 use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
@@ -44,15 +45,15 @@ class BuildSelectQueryStep extends AbstractStep
             $this->addJoinIfRelation($property, $queryBuilder);
         }
 
-        return new ArtifactCollection();
+        return new ArtifactCollection([
+            new Artifact('select_query_built', true)
+        ]);
     }
 
 
     public function getRequiredArtifacts() : array
     {
-        return [
-            'reflection', 'query_builder'
-        ];
+        return ['reflection', 'query_builder', 'access_granted'];
     }
 
     /**

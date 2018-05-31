@@ -15,7 +15,9 @@
                  class="Kami\Component\RequestProcessor\RequestProcessor" public="true">
         </service>
 
-        <service id="kami.api_core.strategy_factory" class="Kami\ApiCoreBundle\RequestProcessor\StrategyFactory">
+        <service id="kami.api_core.strategy_factory"
+                 class="Kami\ApiCoreBundle\RequestProcessor\StrategyFactory"
+                 public="true">
             <argument type="tagged" tag="kami_api_core.strategy_step" />
         </service>
 

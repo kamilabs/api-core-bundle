@@ -22,6 +22,6 @@ class GetEntityFromReflectionStep extends AbstractStep
 
     public function getRequiredArtifacts(): array
     {
-        return ['reflection'];
+        return ['reflection', 'access_granted'];
     }
 }

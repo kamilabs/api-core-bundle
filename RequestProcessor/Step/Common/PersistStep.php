@@ -5,8 +5,10 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PersistStep extends AbstractStep
@@ -21,9 +23,13 @@ class PersistStep extends AbstractStep
         $this->manager = $doctrine->getManager();
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $entity = $this->getFromResponse('entity');
+        $entity = $this->getArtifact('entity');
+
+        if(true !== $this->getArtifact('validation')) {
+            return new ArtifactCollection();
+        }
 
         try {
             $this->manager->persist($entity);
@@ -32,12 +38,15 @@ class PersistStep extends AbstractStep
             throw new BadRequestHttpException('Your request can not be stored', $exception);
         }
 
-        return $this->createResponse(['response_data' => $entity]);
+        return new ArtifactCollection([
+            new Artifact('response_data', $entity),
+            new Artifact('status', 200)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [ValidateFormStep::class];
+        return ['validation', 'entity', 'access_granted'];
     }
 
 

@@ -2,26 +2,35 @@
 
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Symfony\Component\Form\Form;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class ValidateFormStep extends AbstractStep
 {
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var Form $form */
-        $form = $this->getFromResponse('form');
+        $form = $this->getArtifact('form');
         if (!$form->isValid()) {
-            return $this->createResponse(['response_data' => $form->getErrors()], true, 400);
+            return new ArtifactCollection([
+                new Artifact('validation', false),
+                new Artifact('status', 400),
+                new Artifact('response_data', $form)
+            ]);
         }
 
-        return $this->createResponse([]);
+        return new ArtifactCollection([
+            new Artifact('validation', true)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [HandleRequestStep::class];
+        return ['handled_request', 'access_granted', 'form'];
     }
 
 }

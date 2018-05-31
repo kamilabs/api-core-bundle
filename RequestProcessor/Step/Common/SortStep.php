@@ -6,6 +6,7 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\Artifact;
 use Kami\Component\RequestProcessor\ArtifactCollection;
 use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,12 +41,14 @@ class SortStep extends AbstractStep
         }
 
         $queryBuilder->orderBy(sprintf('e.%s', $sort), $direction);
-        return new ArtifactCollection();
+        return new ArtifactCollection([
+            new Artifact('sort_applied', true)
+        ]);
     }
 
     public function getRequiredArtifacts() : array
     {
-        return ['query_builder', 'reflection'];
+        return ['query_builder', 'reflection', 'select_query_built', 'access_granted'];
     }
 
 }
