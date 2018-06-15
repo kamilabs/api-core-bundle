@@ -2,21 +2,26 @@
 
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class GetEntityFromReflectionStep extends AbstractStep
 {
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $class = $this->getFromResponse('reflection')->getName();
+        $class = $this->getArtifact('reflection')->getName();
         $entity = new $class;
 
-        return $this->createResponse(['entity' => $entity]);
+        return new ArtifactCollection([
+            new Artifact('entity', $entity)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts(): array
     {
-        return [GetReflectionFromRequestStep::class];
+        return ['reflection', 'access_granted'];
     }
 }

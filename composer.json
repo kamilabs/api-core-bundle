@@ -11,7 +11,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.0",
+        "php": "^7.1",
         "symfony/form": "^2.8 || ^3.0 || ^4.0",
         "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
         "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
@@ -20,7 +20,8 @@
         "symfony/yaml": "^2.8 || ^3.0 || ^4.0",
         "doctrine/orm": "^2.5 || ^2.7",
         "jms/serializer-bundle": "^2.4",
-        "pagerfanta/pagerfanta": "^2.0"
+        "pagerfanta/pagerfanta": "^2.0",
+        "kami/request-processor": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.2",

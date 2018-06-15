@@ -5,21 +5,25 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Filter;
 
 
 use Kami\ApiCoreBundle\Filter\Validator;
-use Kami\ApiCoreBundle\RequestProcessor\ResponseInterface;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 
 class ValidateFilters extends AbstractStep
 {
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $validator = new Validator($this->request);
+        $validator = new Validator($request);
 
-        return $this->createResponse(['filters' => $validator->getFilters()]);
+        return new ArtifactCollection([
+            new Artifact('filters', $validator->getFilters())
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [];
+        return ['access_granted'];
     }
 
 }

@@ -7,9 +7,11 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
 use Kami\ApiCoreBundle\Annotation\Form;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\ProcessingException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
 
 abstract class AbstractBuildFormStep extends AbstractStep
 {
@@ -45,24 +47,28 @@ abstract class AbstractBuildFormStep extends AbstractStep
     /**
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return 'generic_build_form_step';
     }
 
     /**
+     * @param $method
+     *
+     * @throws ProcessingException
+     *
      * @return FormBuilderInterface
      */
-    protected function getBaseFormBuilder()
+    protected function getBaseFormBuilder($method) : FormBuilderInterface
     {
         $builder = $this->formFactory->createNamedBuilder(
-            Inflector::tableize($this->getFromResponse('reflection')->getShortName()),
+            Inflector::tableize($this->getArtifact('reflection')->getShortName()),
             FormType::class,
-            $this->getFromResponse('entity'),
+            $this->getArtifact('entity'),
             ['csrf_protection' => false]
         );
 
-        if ('PUT' === $this->request->getMethod()) {
+        if ('PUT' === $method) {
             $builder->setMethod('PUT');
         }
 
@@ -73,7 +79,7 @@ abstract class AbstractBuildFormStep extends AbstractStep
      * @param \ReflectionProperty $property
      * @param FormBuilderInterface $builder
      */
-    protected function addField(\ReflectionProperty $property, FormBuilderInterface $builder)
+    protected function addField(\ReflectionProperty $property, FormBuilderInterface $builder) : void
     {
         if ($annotation = $this->reader->getPropertyAnnotation($property, Form::class)) {
             $builder->add(Inflector::tableize($property->getName()), $annotation->type, $annotation->options);

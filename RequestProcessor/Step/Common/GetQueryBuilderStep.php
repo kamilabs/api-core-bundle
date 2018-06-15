@@ -3,7 +3,10 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 
 class GetQueryBuilderStep extends AbstractStep
 {
@@ -17,16 +20,15 @@ class GetQueryBuilderStep extends AbstractStep
         $this->doctrine = $doctrine;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        return $this->createResponse(['query_builder' => $this->doctrine->getManager()->createQueryBuilder()]);
+        return new ArtifactCollection([
+            new Artifact('query_builder', $this->doctrine->getManager()->createQueryBuilder())
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [
-            GetReflectionFromRequestStep::class,
-            ValidateResourceAccessStep::class
-        ];
+        return ['access_granted'];
     }
 }

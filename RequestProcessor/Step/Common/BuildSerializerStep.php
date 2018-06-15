@@ -5,8 +5,11 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use JMS\Serializer\Serializer;
 use Kami\ApiCoreBundle\Bridge\JmsSerializer\ContextFactory\ApiContextFactory;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class BuildSerializerStep extends AbstractStep
@@ -27,17 +30,19 @@ class BuildSerializerStep extends AbstractStep
         $this->serializer = $serializer;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         $this->serializer
             ->setSerializationContextFactory(new ApiContextFactory($this->accessManager));
 
-        return $this->createResponse(['serializer' => $this->serializer]);
+        return new ArtifactCollection([
+            new Artifact('serializer', $this->serializer)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [];
+        return ['access_granted'];
     }
 
 }

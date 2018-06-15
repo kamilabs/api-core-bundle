@@ -10,6 +10,17 @@
     </imports>
 
     <services>
+
+        <service id="kami.api_core.request_processor.default"
+                 class="Kami\Component\RequestProcessor\RequestProcessor" public="true">
+        </service>
+
+        <service id="kami.api_core.strategy_factory"
+                 class="Kami\ApiCoreBundle\RequestProcessor\StrategyFactory"
+                 public="true">
+            <argument type="tagged" tag="kami_api_core.strategy_step" />
+        </service>
+
         <service id="kami.api_core.routing_loader" class="Kami\ApiCoreBundle\Routing\ApiCoreRoutingLoader">
             <argument>%kami.api_core.resources%</argument>
             <argument>%kami.api_core.locales%</argument>
@@ -26,14 +37,8 @@
             <argument type="service" id="jms_serializer.serializer"/>
             <tag name="kernel.event_listener" event="kernel.request" priority="255"/>
         </service>
-
-        <service id="kami.api_core.request_processor.default"
-                 class="Kami\ApiCoreBundle\RequestProcessor\DefaultRequestProcessor" public="true">
-            <argument type="tagged" tag="kami_api_core.strategy_step" />
-        </service>
         <service id="nelmio_api_doc.route_describers.kami_api_core" class="Kami\ApiCoreBundle\Bridge\NelmioApiDoc\RouteDescriber\KamiApiCoreDescriber" public="false">
             <argument type="service" id="kami.api_core.stenographer" />
-
             <tag name="nelmio_api_doc.route_describer" priority="-3000" />
         </service>
         <service id="kami.api_core.stenographer" class="Kami\ApiCoreBundle\Stenographer\Stenographer">

@@ -5,10 +5,10 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Delete;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\FetchEntityByIdStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateResourceAccessStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class DeleteStep extends AbstractStep
@@ -24,23 +24,26 @@ class DeleteStep extends AbstractStep
     }
 
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $entity = $this->getFromResponse('entity');
+        $entity = $this->getArtifact('entity');
 
         try {
             $this->manager->remove($entity);
             $this->manager->flush();
-        } catch (ORMException $exception) {
+        } catch (\Exception $exception) {
             throw new BadRequestHttpException('Your request can not be processed', $exception);
         }
 
-        return $this->createResponse(['response_data' => null], true, 204);
+        return new ArtifactCollection([
+            new Artifact('data', null),
+            new Artifact('status', 204)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array 
     {
-        return [ValidateResourceAccessStep::class, FetchEntityByIdStep::class];
+        return ['entity', 'access_granted'];
     }
 
 }

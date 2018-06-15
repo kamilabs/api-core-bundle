@@ -3,14 +3,15 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Kami\ApiCoreBundle\Model\Pageable;
 use Kami\ApiCoreBundle\Model\PageRequest;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -34,17 +35,18 @@ class PaginateStep extends AbstractStep
         $this->maxPerPage = $maxPerPage;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $perPage = $this->request->query->getInt('per_page', $this->perPage);
+        $perPage = $request->query->getInt('per_page', $this->perPage);
 
         if ($perPage > $this->maxPerPage) {
             throw new BadRequestHttpException('Max per page parameter is greater than allowed');
         }
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getFromResponse('query_builder');
-        $currentPage = $this->request->query->getInt('page', 1);
+        $queryBuilder = $this->getArtifact('query_builder');
+        $currentPage = $request->query->getInt('page', 1);
+
         $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder));
         $paginator->setMaxPerPage($perPage);
         $paginator->setCurrentPage($currentPage);
@@ -52,18 +54,21 @@ class PaginateStep extends AbstractStep
         if ($currentPage < 1 || $currentPage > $paginator->getNbPages()) {
             throw new NotFoundHttpException();
         }
-        return $this->createResponse(['response_data' =>
-            new Pageable(
-                iterator_to_array($paginator->getIterator()),
-                $paginator->getNbResults(),
-                new PageRequest($currentPage, $paginator->getNbPages())
-            )
+        return new ArtifactCollection([
+            new Artifact(
+                'response_data',
+                new Pageable(
+                    iterator_to_array($paginator->getIterator()),
+                    $paginator->getNbResults(),
+                    new PageRequest($currentPage, $paginator->getNbPages())
+            )),
+            new Artifact('status', 200)
         ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [BuildSelectQueryStep::class];
+        return ['query_builder', 'select_query_built', 'access_granted'];
     }
 
 }

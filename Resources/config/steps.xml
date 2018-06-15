@@ -102,9 +102,9 @@
             <tag name="kami_api_core.strategy_step" shortcut="item_add_where"/>
         </service>
 
-        <service id="kami.api_core.item.single.set_selected_data"
-                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Item\SetSelectedDataStep">
-            <tag name="kami_api_core.strategy_step" shortcut="item_set_selected_data"/>
+        <service id="kami.api_core.item.single.execute_query"
+                 class="Kami\ApiCoreBundle\RequestProcessor\Step\Item\ExecuteQueryStep">
+            <tag name="kami_api_core.strategy_step" shortcut="execute_query"/>
         </service>
         <service id="kami.api_core.item.filter.validate_filters"
                  class="Kami\ApiCoreBundle\RequestProcessor\Step\Filter\ValidateFilters">

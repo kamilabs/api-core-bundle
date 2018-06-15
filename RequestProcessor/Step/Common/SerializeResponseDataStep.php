@@ -2,27 +2,31 @@
 
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
-use JMS\Serializer\Serializer;
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 
 class SerializeResponseDataStep extends AbstractStep
 {
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
-        $serializer = $this->getFromResponse('serializer');
+        $serializer = $this->getArtifact('serializer');
 
         $serialized = $serializer->serialize(
-            $this->getFromResponse('response_data'),
-            $this->request->attributes->get('_format')
+            $this->getArtifact('response_data'),
+            $request->attributes->get('_format')
         );
-        return $this->createResponse(['response_data'=> $serialized], true);
+
+        return new ArtifactCollection([
+            new Artifact('data', $serialized)
+        ]);
 
 
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [BuildSerializerStep::class];
+        return ['serializer', 'response_data', 'access_granted'];
     }
 }

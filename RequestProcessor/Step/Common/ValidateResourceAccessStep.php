@@ -3,10 +3,11 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
-use Kami\ApiCoreBundle\RequestProcessor\ResponseInterface;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ValidateResourceAccessStep extends AbstractStep
@@ -36,23 +37,23 @@ class ValidateResourceAccessStep extends AbstractStep
         $this->accessManager = $accessManager;
     }
 
-    /**
-     * @return ResponseInterface
-     */
-    public function execute()
+
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
-        $method = $this->validatorMap[$this->request->getMethod()];
+        $reflection = $this->getArtifact('reflection');
+        $method = $this->validatorMap[$request->getMethod()];
         if (!call_user_func([$this->accessManager, $method], $reflection)) {
             throw new AccessDeniedHttpException();
         }
 
-        return new ProcessorResponse($this->request, $this->response->getData());
+        return new ArtifactCollection([
+            new Artifact('access_granted', true)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts(): array
     {
-        return [GetReflectionFromRequestStep::class];
+        return ['reflection'];
     }
 }

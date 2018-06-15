@@ -4,7 +4,10 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
@@ -20,22 +23,24 @@ class FetchEntityByIdStep extends AbstractStep
         $this->doctrine = $doctrine;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
-        $entity = $this->doctrine->getRepository($reflection->getName())->find($this->request->get('id', 0));
+        $reflection = $this->getArtifact('reflection');
+        $entity = $this->doctrine->getRepository($reflection->getName())->find($request->get('id', 0));
 
         if (!$entity) {
             throw new NotFoundHttpException('Resource not found');
         }
 
-        return $this->createResponse(['entity' => $entity]);
+        return new ArtifactCollection([
+            new Artifact('entity', $entity)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [GetReflectionFromRequestStep::class];
+        return ['reflection', 'access_granted'];
     }
 
 }

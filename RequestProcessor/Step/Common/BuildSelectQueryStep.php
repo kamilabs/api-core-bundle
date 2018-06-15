@@ -5,15 +5,13 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\Inflector;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToMany;
-use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\Annotation\Relation;
-use Kami\ApiCoreBundle\RequestProcessor\ProcessingException;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Symfony\Component\HttpFoundation\Request;
 
 class BuildSelectQueryStep extends AbstractStep
 {
@@ -34,12 +32,12 @@ class BuildSelectQueryStep extends AbstractStep
         $this->reader = $reader;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
+        $reflection = $this->getArtifact('reflection');
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getFromResponse('query_builder');
+        $queryBuilder = $this->getArtifact('query_builder');
         $queryBuilder->from($reflection->getName(), 'e');
         $queryBuilder->addSelect('e');
 
@@ -47,15 +45,15 @@ class BuildSelectQueryStep extends AbstractStep
             $this->addJoinIfRelation($property, $queryBuilder);
         }
 
-        return $this->createResponse(['query_builder' => $queryBuilder]);
+        return new ArtifactCollection([
+            new Artifact('select_query_built', true)
+        ]);
     }
 
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [
-            GetQueryBuilderStep::class
-        ];
+        return ['reflection', 'query_builder', 'access_granted'];
     }
 
     /**

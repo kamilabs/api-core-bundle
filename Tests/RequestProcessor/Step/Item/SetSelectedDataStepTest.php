@@ -5,7 +5,7 @@ namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Item\AddWhereStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Item\SetSelectedDataStep;
+use Kami\ApiCoreBundle\RequestProcessor\Step\Item\ExecuteQueryStep;
 use Kami\ApiCoreBundle\Tests\Entity\MyModel;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ class SetSelectedDataStepTest extends TestCase
 {
     public function testRequiresBefore()
     {
-        $step = new SetSelectedDataStep();
+        $step = new ExecuteQueryStep();
         $this->assertEquals([AddWhereStep::class], $step->requiresBefore());
     }
 
@@ -28,7 +28,7 @@ class SetSelectedDataStepTest extends TestCase
 //        $queryBuilderMock = $this->createMock(QueryBuilder::class);
 //        $queryBuilderMock->expects($this->any())->method('getQuery')->willReturn($queryMock);
 //
-//        $step = new SetSelectedDataStep();
+//        $step = new ExecuteQueryStep();
 //        $request = new Request();
 //        $step->setRequest($request);
 //        $step->setPreviousResponse(new ProcessorResponse($request, ['query_builder' => $queryBuilderMock]));

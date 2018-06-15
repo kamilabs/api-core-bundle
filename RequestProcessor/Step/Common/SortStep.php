@@ -5,8 +5,11 @@ namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 
 use Doctrine\ORM\QueryBuilder;
-use Kami\ApiCoreBundle\RequestProcessor\Step\AbstractStep;
 use Kami\ApiCoreBundle\Security\AccessManager;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -19,32 +22,33 @@ class SortStep extends AbstractStep
         $this->accessManager = $accessManager;
     }
 
-    public function execute()
+    public function execute(Request $request) : ArtifactCollection
     {
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getFromResponse('query_builder');
-        $sort = $this->request->get('sort', $this->request->attributes->get('_sort'));
-        $direction = $this->request->get('direction', $this->request->attributes->get('_sort_direction'));
+        $queryBuilder = $this->getArtifact('query_builder');
+        $sort = $request->get('sort', $request->attributes->get('_sort'));
+        $direction = $request->get('direction', $request->attributes->get('_sort_direction'));
         if (!in_array($direction, ['asc', 'desc'])) {
             throw new BadRequestHttpException();
         }
         /** @var \ReflectionClass $reflection */
-        $reflection = $this->getFromResponse('reflection');
+        $reflection = $this->getArtifact('reflection');
         $property = $reflection->getProperty($sort);
 
-        if ($sort !== $this->request->attributes->get('_sort')
+        if ($sort !== $request->attributes->get('_sort')
             && !$this->accessManager->canAccessProperty($property)) {
             throw new AccessDeniedHttpException();
         }
 
         $queryBuilder->orderBy(sprintf('e.%s', $sort), $direction);
-
-        return $this->createResponse(['query_builder' => $queryBuilder]);
+        return new ArtifactCollection([
+            new Artifact('sort_applied', true)
+        ]);
     }
 
-    public function requiresBefore()
+    public function getRequiredArtifacts() : array
     {
-        return [GetQueryBuilderStep::class];
+        return ['query_builder', 'reflection', 'select_query_built', 'access_granted'];
     }
 
 }
