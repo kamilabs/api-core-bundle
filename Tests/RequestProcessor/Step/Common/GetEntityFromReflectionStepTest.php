@@ -2,14 +2,12 @@
 
 namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
-use Kami\ApiCoreBundle\Tests\Entity\MyModel;
 use Kami\ApiCoreBundle\Tests\fixtures\Entity;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GetEntityFromReflectionStepTest extends TestCase
 {
@@ -17,18 +15,19 @@ class GetEntityFromReflectionStepTest extends TestCase
     public function testExecute()
     {
         $step = new GetEntityFromReflectionStep();
-        $request = new Request();
-        $step->setRequest($request);
-        $step->setPreviousResponse(new ProcessorResponse($request, ['reflection' => new \ReflectionClass(MyModel::class)]));
+        $step->setArtifacts(new ArtifactCollection([
+            new Artifact('reflection', new \ReflectionClass(Entity::class)),
+            new Artifact('access_granted', new \ReflectionClass(Entity::class))
+        ]));
 
-        $response = $step->execute();
-        $this->assertInstanceOf(ProcessorResponse::class, $response);
-        $this->assertInstanceOf(MyModel::class, $response->getData()['entity']);
+        $artifacts = $step->execute(new Request());
+        $this->assertInstanceOf(ArtifactCollection::class, $artifacts);
+        $this->assertInstanceOf(Entity::class, $artifacts->get('entity')->getValue());
     }
     
-    public function testRequiresBefore()
+    public function testGetRequiredArtifacts()
     {
         $step = new GetEntityFromReflectionStep();
-        $this->assertEquals([GetReflectionFromRequestStep::class], $step->requiresBefore());
+        $this->assertEquals(['reflection', 'access_granted'], $step->getRequiredArtifacts());
     }
 }

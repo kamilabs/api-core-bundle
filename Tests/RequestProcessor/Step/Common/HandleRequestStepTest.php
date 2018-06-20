@@ -2,17 +2,13 @@
 
 namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep;
-use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\HandleRequestStep;
-use Kami\ApiCoreBundle\Tests\Entity\MyModel;
-use Kami\ApiCoreBundle\Tests\fixtures\Entity;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HandleRequestStepTest extends TestCase
 {
@@ -23,12 +19,13 @@ class HandleRequestStepTest extends TestCase
         $formMock->expects($this->any())->method('isSubmitted')->willReturn(true);
         $step = new HandleRequestStep();
         $request = new Request();
-        $step->setRequest($request);
-        $step->setPreviousResponse(new ProcessorResponse($request, ['form' => $formMock]));
-
-        $response = $step->execute();
-        $this->assertInstanceOf(ProcessorResponse::class, $response);
-        $this->assertInstanceOf(Form::class, $response->getData()['form']);
+        $step->setArtifacts(new ArtifactCollection([
+            new Artifact('form', $formMock),
+            new Artifact('access_granted', true)
+        ]));
+        $response = $step->execute($request);
+        $this->assertInstanceOf(ArtifactCollection::class, $response);
+        $this->assertTrue($response->get('handled_request')->getValue());
     }
 
     public function testExecuteFailure()
@@ -36,17 +33,18 @@ class HandleRequestStepTest extends TestCase
         $formMock = $this->createMock(Form::class);
         $formMock->expects($this->any())->method('isSubmitted')->willReturn(false);
         $step = new HandleRequestStep();
+        $step->setArtifacts(new ArtifactCollection([
+            new Artifact('form', $formMock),
+            new Artifact('access_granted', true)
+        ]));
         $request = new Request();
-        $step->setRequest($request);
-        $step->setPreviousResponse(new ProcessorResponse($request, ['form' => $formMock]));
-
         $this->expectException(BadRequestHttpException::class);
-        $step->execute();
+        $step->execute($request);
     }
     
-    public function testRequiresBefore()
+    public function testGetRequiredArtifacts()
     {
         $step = new HandleRequestStep();
-        $this->assertEquals(['generic_build_form_step'], $step->requiresBefore());
+        $this->assertEquals(['form', 'access_granted'], $step->getRequiredArtifacts());
     }
 }

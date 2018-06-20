@@ -10,6 +10,7 @@ use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\PersistStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\ValidateFormStep;
 use Kami\ApiCoreBundle\Tests\Entity\MyModel;
+use Kami\Component\RequestProcessor\ArtifactCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -29,8 +30,9 @@ class PersistStepTest extends TestCase
         $doctrineMock->expects($this->at(0))->method('getManager')->willReturn($entityManagerMock);
 
         $step = new PersistStep($doctrineMock);
-        $step->setRequest($request);
-        $step->setPreviousResponse(new ProcessorResponse($request, ['entity' => new MyModel()]));
+        $step->setArtifacts(new ArtifactCollection([
+            ''
+        ]));
         $response = $step->execute();
         $this->assertInstanceOf(MyModel::class, $response->getData()['response_data']);
     }

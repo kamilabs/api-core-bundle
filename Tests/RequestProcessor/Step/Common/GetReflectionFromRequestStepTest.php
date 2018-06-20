@@ -2,12 +2,11 @@
 
 namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 
-use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetReflectionFromRequestStep;
 use Kami\ApiCoreBundle\Tests\fixtures\Entity;
+use Kami\Component\RequestProcessor\ArtifactCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GetReflectionFromRequestStepTest extends TestCase
 {
@@ -17,28 +16,23 @@ class GetReflectionFromRequestStepTest extends TestCase
         $request = new Request();
         $request->attributes->set('_entity', Entity::class);
         $step = new GetReflectionFromRequestStep();
-        $step->setRequest($request);
-        $step->setPreviousResponse(new ProcessorResponse($request, []));
-
-        $response = $step->execute();
-        $this->assertInstanceOf(ProcessorResponse::class, $response);
-        $this->assertInstanceOf(\ReflectionClass::class, $response->getData()['reflection']);
+        $artifacts = $step->execute($request);
+        $this->assertInstanceOf(ArtifactCollection::class, $artifacts);
+        $this->assertInstanceOf(\ReflectionClass::class, $artifacts->get('reflection')->getValue());
     }
 
-    public function testExecuteFailure()
+    public function testExecuteIfEntityNotExist()
     {
         $request = new Request();
         $request->attributes->set('_entity', 'Not\Existing\Class');
         $step = new GetReflectionFromRequestStep();
-        $step->setPreviousResponse(new ProcessorResponse($request, []));
-        $step->setRequest($request);
-        $this->expectException(NotFoundHttpException::class);
-        $step->execute();
+        $this->expectException(\ReflectionException::class);
+        $step->execute($request);
     }
 
-    public function testRequiresBefore()
+    public function testGetRequiredArtifacts()
     {
         $step = new GetReflectionFromRequestStep();
-        $this->assertEquals([], $step->requiresBefore());
+        $this->assertEquals([], $step->getRequiredArtifacts());
     }
 }

@@ -39,6 +39,13 @@ class MyModel
     private $title;
 
     /**
+     * @var array
+     *
+     * @Api\Relation
+     */
+    private $relation;
+
+    /**
      * Get id.
      *
      * @return int

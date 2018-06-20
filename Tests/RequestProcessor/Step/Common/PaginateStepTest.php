@@ -2,10 +2,17 @@
 
 namespace Kami\ApiCoreBundle\Tests\RequestProcessor\Step\Common;
 
+use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Kami\ApiCoreBundle\Model\Pageable;
 use Kami\ApiCoreBundle\RequestProcessor\ProcessorResponse;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\BuildSelectQueryStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\GetEntityFromReflectionStep;
@@ -14,6 +21,9 @@ use Kami\ApiCoreBundle\RequestProcessor\Step\Common\HandleRequestStep;
 use Kami\ApiCoreBundle\RequestProcessor\Step\Common\PaginateStep;
 use Kami\ApiCoreBundle\Tests\Entity\MyModel;
 use Kami\ApiCoreBundle\Tests\fixtures\Entity;
+use Kami\Component\RequestProcessor\Artifact;
+use Kami\Component\RequestProcessor\ArtifactCollection;
+use Kami\Component\RequestProcessor\Step\AbstractStep;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,42 +33,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class PaginateStepTest extends TestCase
 {
 
-    //todo paginator tests
-//    public function testExecute()
-//    {
-//        $paginatorMock = $this->createMock(Paginator::class);
-//        $paginatorMock->expects($this->any())->method('__construct')->willReturn($paginatorMock);
-//        $paginatorMock->expects($this->any())->method('count')->willReturn(10);
-//
-//        $queryBuilderMock = $this->createMock(QueryBuilder::class);
-//        $queryBuilderMock->expects($this->any())->method('getQuery')->willReturn($queryMock);
-//
-//        $step = new PaginateStep(10);
-//        $request = new Request();
-//        $step->setRequest($request);
-//        $step->setPreviousResponse(new ProcessorResponse($request, ['query_builder' => $queryBuilderMock]));
-//
-//        $response = $step->execute();
-//        $this->assertInstanceOf(ProcessorResponse::class, $response);
-//        $this->assertInstanceOf(Form::class, $response->getData()['form']);
-//    }
-
-//    public function testExecuteFailure()
-//    {
-//        $formMock = $this->createMock(Form::class);
-//        $formMock->expects($this->any())->method('isSubmitted')->willReturn(false);
-//        $step = new HandleRequestStep();
-//        $request = new Request();
-//        $step->setRequest($request);
-//        $step->setPreviousResponse(new ProcessorResponse($request, ['form' => $formMock]));
-//
-//        $this->expectException(BadRequestHttpException::class);
-//        $response = $step->execute();
-//    }
-//    
-    public function testRequiresBefore()
+    public function testGetRequiredArtifacts()
     {
         $step = new PaginateStep(10, 100);
-        $this->assertEquals([BuildSelectQueryStep::class], $step->requiresBefore());
+        $this->assertEquals(['query_builder', 'select_query_built', 'access_granted'], $step->getRequiredArtifacts());
     }
 }
