@@ -1,0 +1,52 @@
+{
+    "name": "kami/api-core-bundle",
+    "description": "This bundle provides you with easy and flexible REST CRUDs creation",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Iakov Mishchenko",
+            "email": "iakov@kamilabs.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.1",
+        "symfony/form": "^2.8 || ^3.0 || ^4.0",
+        "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+        "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
+        "symfony/validator": "^2.8 || ^3.0 || ^4.0",
+        "doctrine/doctrine-bundle": "^1.3",
+        "symfony/yaml": "^2.8 || ^3.0 || ^4.0",
+        "doctrine/orm": "^2.5 || ^2.7",
+        "jms/serializer-bundle": "^2.4",
+        "pagerfanta/pagerfanta": "^2.0",
+        "kami/request-processor": "dev-master"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.2",
+        "swiftmailer/swiftmailer": "^4.3 || ^5.0 || ^6.0",
+        "symfony/console": "^2.8 || ^3.0 || ^4.0",
+        "symfony/phpunit-bridge": "^2.8 || ^3.0 || ^4.0",
+        "phpunit/phpunit": "^4.8.35|^5.7.11|^6.5",
+        "nelmio/api-doc-bundle": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kami\\ApiCoreBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kami\\ApiCoreBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.2.1-dev"
+        }
+    }
+}
