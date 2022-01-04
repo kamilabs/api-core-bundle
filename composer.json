@@ -21,7 +21,7 @@
         "doctrine/orm": "^3.0",
         "jms/serializer-bundle": "^4.0",
         "pagerfanta/pagerfanta": "^3.5",
-        "kami/request-processor": "^1.3"
+        "kami/request-processor": "^1.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.2",

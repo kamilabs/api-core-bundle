@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Kami\ApiCoreBundle\Bridge\JmsSerializer\ContextFactory;
-
 
 use JMS\Serializer\ContextFactory\SerializationContextFactoryInterface;
 use JMS\Serializer\SerializationContext;
@@ -21,7 +19,7 @@ class ApiContextFactory implements SerializationContextFactoryInterface
         $this->accessManager = $accessManager;
     }
 
-    public function createSerializationContext()
+    public function createSerializationContext() : SerializationContext
     {
         return SerializationContext::create()
             ->addExclusionStrategy(new ApiExclusionStrategy($this->accessManager))
