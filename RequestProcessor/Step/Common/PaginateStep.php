@@ -9,7 +9,7 @@ use Kami\ApiCoreBundle\Model\PageRequest;
 use Kami\Component\RequestProcessor\Artifact;
 use Kami\Component\RequestProcessor\ArtifactCollection;
 use Kami\Component\RequestProcessor\Step\AbstractStep;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -47,7 +47,7 @@ class PaginateStep extends AbstractStep
         $queryBuilder = $this->getArtifact('query_builder');
         $currentPage = $request->query->getInt('page', 1);
 
-        $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder));
+        $paginator = new Pagerfanta(new QueryAdapter($queryBuilder));
         $paginator->setMaxPerPage($perPage);
         $paginator->setCurrentPage($currentPage);
 

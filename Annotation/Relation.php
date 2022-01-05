@@ -8,7 +8,7 @@ namespace Kami\ApiCoreBundle\Annotation;
  */
 class Relation
 {
-    public $target;
+    public string $target;
 
-    public $maxDepth = 1;
+    public int $maxDepth = 1;
 }

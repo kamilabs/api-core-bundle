@@ -3,7 +3,7 @@
 namespace Kami\ApiCoreBundle\Listener;
 
 use JMS\Serializer\Serializer;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
  * Class RequestBodyConverter
@@ -25,7 +25,7 @@ class RequestBodyConverter
     /**
      * @param GetResponseEvent $event
      */
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         $request = $event->getRequest();
         if (stristr($request->headers->get('content-type'), 'application/json')) {

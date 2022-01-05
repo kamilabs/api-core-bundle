@@ -21,16 +21,16 @@ class ApiExclusionStrategy implements ExclusionStrategyInterface
         $this->accessManager = $accessManager;
     }
 
-    public function shouldSkipClass(ClassMetadata $metadata, Context $context)
+    public function shouldSkipClass(ClassMetadata $metadata, Context $context) : bool
     {
-        if (in_array($metadata->reflection->getName(), [Pageable::class, PageRequest::class])) {
+        if (in_array($metadata->name, [Pageable::class, PageRequest::class])) {
             return false;
         }
 
         return !$this->accessManager->canAccessResource($metadata->reflection);
     }
 
-    public function shouldSkipProperty(PropertyMetadata $property, Context $context)
+    public function shouldSkipProperty(PropertyMetadata $property, Context $context) : bool
     {
         if (in_array($property->class, [Pageable::class, PageRequest::class])) {
             return false;

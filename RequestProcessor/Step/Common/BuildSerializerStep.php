@@ -4,6 +4,7 @@
 namespace Kami\ApiCoreBundle\RequestProcessor\Step\Common;
 
 use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializerBuilder;
 use Kami\ApiCoreBundle\Bridge\JmsSerializer\ContextFactory\ApiContextFactory;
 use Kami\ApiCoreBundle\Security\AccessManager;
 use Kami\Component\RequestProcessor\Artifact;
@@ -27,16 +28,18 @@ class BuildSerializerStep extends AbstractStep
     public function __construct(AccessManager $accessManager, Serializer $serializer)
     {
         $this->accessManager = $accessManager;
-        $this->serializer = $serializer;
     }
 
     public function execute(Request $request) : ArtifactCollection
     {
-        $this->serializer
-            ->setSerializationContextFactory(new ApiContextFactory($this->accessManager));
+        $serializer = SerializerBuilder::create()
+            ->setSerializationContextFactory(new ApiContextFactory($this->accessManager))
+            ->build()
+            ;
+        
 
         return new ArtifactCollection([
-            new Artifact('serializer', $this->serializer)
+            new Artifact('serializer', $serializer)
         ]);
     }
 

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services
-        http://symfony.com/schema/dic/services/services-1.0.xsd">
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <imports>
         <import resource="default_strategies.xml"/>
@@ -10,14 +7,26 @@
     </imports>
 
     <services>
-
+        <service id="Kami\ApiCoreBundle\Controller\ApiController">
+            <argument type="service" id="kami.api_core.processor_registry" />
+            <argument type="service" id="kami.api_core.strategy_factory" />
+            <tag name="controller.service_arguments"/>
+        </service>
         <service id="kami.api_core.request_processor.default"
-                 class="Kami\Component\RequestProcessor\RequestProcessor" public="true">
+                 class="Kami\Component\RequestProcessor\RequestProcessor">
+            <tag name="kami_api_core.request_processor"/>
+        </service>
+
+        <service id="kami.api_core.processor_registry"
+                 class="Kami\ApiCoreBundle\RequestProcessor\ProcessorRegistry"
+                 public="true">
+            <argument type="tagged" tag="kami_api_core.request_processor" />
         </service>
 
         <service id="kami.api_core.strategy_factory"
                  class="Kami\ApiCoreBundle\RequestProcessor\StrategyFactory"
                  public="true">
+            <argument>%kami.api_core.strategies%</argument>
             <argument type="tagged" tag="kami_api_core.strategy_step" />
         </service>
 

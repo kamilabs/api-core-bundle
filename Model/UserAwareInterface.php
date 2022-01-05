@@ -7,14 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 interface UserAwareInterface
 {
-    /**
-     * @return UserInterface
-     */
-    public function getUser();
+    public function getUser() : UserInterface;
 
-    /**
-     * @param UserInterface $user
-     * @return UserAwareInterface
-     */
-    public function setUser(UserInterface $user);
+    public function setUser(UserInterface $user) : UserInterface;
 }

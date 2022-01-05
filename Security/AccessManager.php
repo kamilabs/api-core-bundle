@@ -11,7 +11,7 @@ use Kami\ApiCoreBundle\Annotation\AnonymousUpdate;
 use Kami\ApiCoreBundle\Annotation\CanBeCreatedBy;
 use Kami\ApiCoreBundle\Annotation\CanBeDeletedBy;
 use Kami\ApiCoreBundle\Annotation\CanBeUpdatedBy;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class AccessManager
@@ -26,28 +26,19 @@ class AccessManager
      */
     private $reader;
 
-    /**
-     * @var array
-     */
-    private $userRoles = [];
+    private array $userRoles = [];
 
-    /**
-     * AccessManager constructor.
-     *
-     * @param TokenStorage $tokenStorage
-     * @param Reader $annotationReader
-     */
-    public function __construct(TokenStorage $tokenStorage, Reader $annotationReader)
+    public function __construct(TokenStorageInterface $tokenStorage, Reader $annotationReader)
     {
         $this->tokenStorage = $tokenStorage;
         $this->reader = $annotationReader;
-        if ($tokenStorage->getToken()->getUser() instanceof UserInterface) {
+        if ($tokenStorage->getToken()?->getUser() instanceof UserInterface) {
             $this->userRoles = $tokenStorage->getToken()->getUser()->getRoles();
         }
     }
 
 
-    public function canAccessProperty(\ReflectionProperty $property)
+    public function canAccessProperty(\ReflectionProperty $property) : bool
     {
         if ($this->reader->getPropertyAnnotation($property, AnonymousAccess::class)) {
             return true;
@@ -60,9 +51,10 @@ class AccessManager
         return false;
     }
 
-    public function canAccessResource(\ReflectionClass $reflection)
+    public function canAccessResource(\ReflectionClass $reflection) : bool
     {
-        if ($this->reader->getClassAnnotation($reflection, AnonymousAccess::class)) {
+
+        if ($reflection->getAttributes(AnonymousAccess::class)|| $this->reader->getClassAnnotation($reflection, AnonymousAccess::class)) {
             return true;
         }
 
@@ -73,7 +65,7 @@ class AccessManager
         return false;
     }
 
-    public function canCreateResource(\ReflectionClass $reflection)
+    public function canCreateResource(\ReflectionClass $reflection) : bool
     {
         if ($this->reader->getClassAnnotation($reflection, AnonymousCreate::class)) {
             return true;
@@ -86,7 +78,7 @@ class AccessManager
         return false;
     }
 
-    public function canCreateProperty(\ReflectionProperty $property)
+    public function canCreateProperty(\ReflectionProperty $property) : bool
     {
         if ($this->reader->getPropertyAnnotation($property, AnonymousCreate::class)) {
             return true;
@@ -98,7 +90,7 @@ class AccessManager
         return false;
     }
 
-    public function canUpdateResource(\ReflectionClass $reflection)
+    public function canUpdateResource(\ReflectionClass $reflection) : bool
     {
         if ($this->reader->getClassAnnotation($reflection, AnonymousUpdate::class)) {
             return true;
@@ -111,7 +103,7 @@ class AccessManager
         return false;
     }
 
-    public function canUpdateProperty(\ReflectionProperty $property)
+    public function canUpdateProperty(\ReflectionProperty $property) : bool
     {
         if ($this->reader->getPropertyAnnotation($property, AnonymousUpdate::class)) {
             return true;
@@ -123,7 +115,7 @@ class AccessManager
         return false;
     }
 
-    public function canDeleteResource(\ReflectionClass $reflection)
+    public function canDeleteResource(\ReflectionClass $reflection) : bool
     {
         if ($this->reader->getClassAnnotation($reflection, AnonymousDelete::class)) {
             return true;
@@ -136,7 +128,7 @@ class AccessManager
         return false;
     }
 
-    private function hasRoleWithAccess($annotation)
+    private function hasRoleWithAccess($annotation) : bool
     {
         return count(array_intersect($annotation->roles, $this->userRoles)) > 0;
     }

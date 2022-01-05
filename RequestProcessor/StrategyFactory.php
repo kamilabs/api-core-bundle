@@ -14,20 +14,17 @@ class StrategyFactory
      */
     protected $availableSteps;
 
-    /**
-     * StrategyFactory constructor.
-     */
-    public function __construct()
+    protected array $strategies;
+
+    public function __construct(array $strategies)
     {
+        $this->strategies = $strategies;
         $this->availableSteps = new ArrayCollection();
     }
 
-    /**
-     * @param array $steps
-     * @return AbstractStrategy
-     */
-    public function create(array $steps)
+    public function create(string $id) : AbstractStrategy
     {
+        $steps = $this->strategies[$id];
         $stepObjects = $this->getStepObjects($steps);
         return new class($stepObjects) extends AbstractStrategy {};
     }

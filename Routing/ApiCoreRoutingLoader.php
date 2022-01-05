@@ -10,31 +10,15 @@ use Symfony\Component\Routing\RouteCollection;
 
 class ApiCoreRoutingLoader extends Loader
 {
-    /**
-     * @var bool
-     */
-    private $loaded = false;
+    private bool $loaded = false;
 
-    /**
-     * @var array
-     */
-    private $resources;
+    private array $resources;
 
-    /**
-     * @var string
-     */
-    private $defaultLocale;
+    private string $defaultLocale;
 
-    /**
-     * @var array
-     */
-    private $locales;
+    private array $locales;
 
-    /**
-     * ApiRoutingLoader constructor.
-     * @param array $resources
-     */
-    public function __construct(array $resources, array $locales, $defaultLocale)
+    public function __construct(array $resources, array $locales, string $defaultLocale)
     {
         $this->resources = $resources;
         $this->defaultLocale = $defaultLocale;
@@ -46,7 +30,7 @@ class ApiCoreRoutingLoader extends Loader
      * @param string $type
      * @return RouteCollection
      */
-    public function load($resource, $type = null)
+    public function load($resource, ?string $type = null)
     {
         if (true === $this->loaded) {
             throw new \RuntimeException('Do not add the "api" loader twice');
@@ -92,7 +76,7 @@ class ApiCoreRoutingLoader extends Loader
         return $routes;
     }
 
-    public function supports($resource, $type = null)
+    public function supports($resource, $type = null) : bool
     {
         return 'kami_api_core' === $type;
     }

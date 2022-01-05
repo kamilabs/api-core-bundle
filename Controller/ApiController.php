@@ -2,18 +2,30 @@
 
 namespace Kami\ApiCoreBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Kami\ApiCoreBundle\RequestProcessor\ProcessorRegistry;
+use Kami\ApiCoreBundle\RequestProcessor\StrategyFactory;
 use Symfony\Component\HttpFoundation\Request;
 
-class ApiController extends Controller
+class ApiController
 {
+    private $processorRegistry;
+
+    private $strategyFactory;
+
+    public function __construct(ProcessorRegistry $processorRegistry, StrategyFactory $strategyFactory)
+    {
+        $this->processorRegistry = $processorRegistry;
+        $this->strategyFactory = $strategyFactory;
+    }
+
+
     public function apiAction(Request $request)
     {
-        $strategy = $this->getParameter($request->attributes->get('_strategy'));
-        $requestProcessor = $this->get($request->attributes->get('_request_processor'));
-
+        $strategy = $request->attributes->get('_strategy');
+        $requestProcessor = $this->processorRegistry->getProcessor($request->attributes->get('_request_processor'));
+        
         return $requestProcessor->executeStrategy(
-            $this->get('kami.api_core.strategy_factory')->create($strategy),
+            $this->strategyFactory->create($strategy),
             $request
         )->toHttpResponse();
     }
