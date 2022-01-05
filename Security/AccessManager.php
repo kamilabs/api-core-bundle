@@ -40,7 +40,7 @@ class AccessManager
 
     public function canAccessProperty(\ReflectionProperty $property) : bool
     {
-        if ($this->reader->getPropertyAnnotation($property, AnonymousAccess::class)) {
+        if ($property->getAttributes(AnonymousAccess::class) || $this->reader->getPropertyAnnotation($property, AnonymousAccess::class)) {
             return true;
         }
 
@@ -54,11 +54,11 @@ class AccessManager
     public function canAccessResource(\ReflectionClass $reflection) : bool
     {
 
-        if ($reflection->getAttributes(AnonymousAccess::class)|| $this->reader->getClassAnnotation($reflection, AnonymousAccess::class)) {
+        if ($reflection->getAttributes(AnonymousAccess::class) || $this->reader->getClassAnnotation($reflection, AnonymousAccess::class)) {
             return true;
         }
 
-        if ($annotation = $this->reader->getClassAnnotation($reflection, Access::class)) {
+        if ($annotation = $reflection->getAttributes(Access::class) || $annotation = $this->reader->getClassAnnotation($reflection, Access::class)) {
             return $this->hasRoleWithAccess($annotation);
         }
 

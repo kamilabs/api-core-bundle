@@ -26,8 +26,8 @@ class ApiExclusionStrategy implements ExclusionStrategyInterface
         if (in_array($metadata->name, [Pageable::class, PageRequest::class])) {
             return false;
         }
-
-        return !$this->accessManager->canAccessResource($metadata->reflection);
+        
+        return !$this->accessManager->canAccessResource(new \ReflectionClass($metadata->name));
     }
 
     public function shouldSkipProperty(PropertyMetadata $property, Context $context) : bool
@@ -35,8 +35,8 @@ class ApiExclusionStrategy implements ExclusionStrategyInterface
         if (in_array($property->class, [Pageable::class, PageRequest::class])) {
             return false;
         }
-
-        return !$this->accessManager->canAccessProperty($property->reflection);
+       
+        return !$this->accessManager->canAccessProperty(new \ReflectionProperty($property->class, $property->name));
     }
-
+    
 }

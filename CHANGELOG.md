@@ -1,4 +1,11 @@
 # CHANGE LOG
+## v0.3.0
+_5th, Jan 2022_
+
+* Welcome back my fellow friends
+* Added Symfony 6 support
+* Refactoring towards php8 
+
 ## v0.2.1
 _28th, May 2018_
 

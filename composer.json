@@ -18,7 +18,7 @@
         "symfony/validator": "^4.4 || ^5.4 || ^6.0",
         "doctrine/doctrine-bundle": "^2.5",
         "symfony/yaml": "^4.4 || ^5.4 || ^6.0",
-        "doctrine/orm": "^3.0",
+        "doctrine/orm": "^2.6",
         "jms/serializer-bundle": "^4.0",
         "pagerfanta/pagerfanta": "^3.5",
         "kami/request-processor": "^1.0"

@@ -5,70 +5,46 @@ namespace Kami\ApiCoreBundle\Model;
 
 class Pageable
 {
-    private $content;
-    private $total;
+    private iterable $content;
+    private int $total;
     private $pageRequest;
 
-    /**
-     * Pageable constructor.
-     * @param $content
-     * @param $total int
-     * @param $pageRequest PageRequest
-     */
-    public function __construct($content, $total, $pageRequest)
+    public function __construct(iterable $content, int $total, PageRequest $pageRequest)
     {
         $this->content = $content;
         $this->total = $total;
         $this->pageRequest = $pageRequest;
     }
 
-    /**
-     * @return iterable
-     */
-    public function getContent()
+    public function getContent() : iterable
     {
         return $this->content;
     }
 
-    /**
-     * @param iterable $content
-     */
-    public function setContent($content)
+    public function setContent(iterable $content) : void
     {
         $this->content = $content;
     }
 
-    /**
-     * @return int
-     */
-    public function getTotal()
+    public function getTotal() : int
     {
         return $this->total;
     }
 
-    /**
-     * @param int $total
-     */
-    public function setTotal($total)
+    public function setTotal($total) : void
     {
         $this->total = $total;
     }
 
-    /**
-     * @return PageRequest
-     */
-    public function getPageRequest()
+
+    public function getPageRequest() : PageRequest
     {
         return $this->pageRequest;
     }
 
-    /**
-     * @param PageRequest $pageRequest
-     */
-    public function setPageRequest($pageRequest)
+    public function setPageRequest(PageRequest $pageRequest)
     {
         $this->pageRequest = $pageRequest;
     }
-
 
 }

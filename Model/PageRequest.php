@@ -5,58 +5,33 @@ namespace Kami\ApiCoreBundle\Model;
 
 class PageRequest
 {
-    /**
-     * @var int
-     */
-    private $page;
+    private int $page;
+    
+    private int $size;
 
-    /**
-     * @var int
-     */
-    private $size;
-
-    /**
-     * PageRequest constructor.
-     * @param int $page
-     * @param int $size
-     */
-    public function __construct($page, $size)
+    public function __construct(int $page, int $size)
     {
         $this->page = $page;
         $this->size = $size;
     }
 
-    /**
-     * @return int
-     */
-    public function getPage()
+    public function getPage() : int
     {
         return $this->page;
     }
 
-    /**
-     * @param int $page
-     */
-    public function setPage($page)
+    public function setPage($page) : void
     {
         $this->page = $page;
     }
 
-    /**
-     * @return int
-     */
-    public function getSize()
+    public function getSize() : int
     {
         return $this->size;
     }
 
-    /**
-     * @param int $size
-     */
-    public function setSize($size)
+    public function setSize(int $size) : void
     {
         $this->size = $size;
     }
-
-
 }
